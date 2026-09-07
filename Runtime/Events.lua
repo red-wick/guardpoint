@@ -28,10 +28,7 @@ local function saveCorePair(pair,number)
 end
 local function startReaper(expiration,isTest)
     local timing=X.Timing or {};local t=U.now();if t-(S.lastApplied or 0)<0.15 then return end;S.lastApplied=t;S.reaper=S.reaper+1;if S.reaper>8 then S.reaper=1 end;S.active=true;S.test=isTest and true or false;S.expire=(expiration and expiration>t) and expiration or t+(timing.ReaperDuration or 5.1)
-    if not S.plan then S.used={};local b,a,pair=P.buildPlan(S.phase,S.reaper,S.expire);S.plan={before=b,after=a};saveCorePair(pair,S.reaper) end
-    scheduleNext()
-    UI.render()
-    if UI.frame then UI.frame:Show() end
+    if not S.plan then S.used={};local b,a,pair=P.buildPlan(S.phase,S.reaper,S.expire);S.plan={before=b,after=a};saveCorePair(pair,S.reaper) end;scheduleNext();UI.render()
 end
 local function phaseReset(p)
     S.phase=p;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false;scheduleNext();if UI.frame then UI.frame:Hide() end
@@ -76,7 +73,7 @@ function X.initialize()
         if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then R.ConfigureActiveClass();X.ConfigureEncounter();stopEncounter();return end
         if event=="PLAYER_UNGHOST" then stopEncounter();return end
         if event=="PLAYER_REGEN_ENABLED" then if S.encounter and not bossStillPresent() then stopEncounter() end;return end
-        if event=="UNIT_AURA" then local unit=...;if unit=="player" then local exp=scanReaper();if exp then if not S.encounter then startEncounter(findLKUnit()) end;if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.plan=nil;S.used={};S.corePair=nil end;if not S.active then startReaper(exp,false) else S.expire=exp;UI.render();if UI.frame then UI.frame:Show() end end end end;return end
+        if event=="UNIT_AURA" then local unit=...;if unit=="player" then local exp=scanReaper();if exp then if not S.encounter then startEncounter(findLKUnit()) end;if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.plan=nil;S.used={};S.corePair=nil end;if not S.active then startReaper(exp,false) else S.expire=exp;UI.render() end end end;return end
         if event=="UNIT_TARGET" or event=="PLAYER_TARGET_CHANGED" then if not S.encounter then local g=findLKUnit();if g and UnitAffectingCombat("player") then startEncounter(g) end end;return end
         if event=="UNIT_SPELLCAST_SUCCEEDED" then local unit,_,sid=...;if unit=="player" and sid then markSpellUsed(sid) end;return end
         local subEvent=arg2;local sourceGUID=arg3;local destGUID=arg6;local spellID=arg9;local encounter=resolveEncounter()
@@ -90,8 +87,8 @@ function X.initialize()
         elseif subEvent=="SPELL_CAST_SUCCESS" and sourceGUID==UnitGUID("player") then markSpellUsed(spellID) end
     end)
     e:SetScript("OnUpdate",function()
-        local t=U.now();if not S.encounter and not S.test and not S.active then if UI.frame then UI.frame:Hide() end;return end
-        if S.active then if t>=S.expire then S.active=false;S.test=false;S.expire=0;S.plan=nil;S.used={};if UI.frame then UI.frame:Hide() end;return end;UI.render();if UI.frame then UI.frame:Show() end
+        local t=U.now();if not S.encounter and not S.test then if UI.frame then UI.frame:Hide() end;return end
+        if S.active then if t>=S.expire then S.active=false;S.test=false;S.expire=0;S.plan=nil;S.used={};if UI.frame then UI.frame:Hide() end;return end;UI.render()
         elseif S.nextAt then local left=S.nextAt-t;if left<=(X.Timing.Prewarn or 8.0) and left>0 then if not S.plan then local b,a,pair=P.buildPlan(S.phase,S.nextNumber,S.nextAt);S.plan={before=b,after=a};saveCorePair(pair,S.nextNumber) end;UI.render() elseif left<=0 then if not S.plan then local b,a,pair=P.buildPlan(S.phase,S.nextNumber,t);S.plan={before=b,after=a};saveCorePair(pair,S.nextNumber) end;UI.render() else UI.frame:Hide() end end;UI.updateButtonState()
     end)
     return true
