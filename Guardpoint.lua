@@ -5,19 +5,20 @@ local ADDON = ...
 local DB = GuardpointDB or {}
 GuardpointDB = DB
 
-local REAPER_IDS = { [69409]=true, [73797]=true, [73798]=true, [73799]=true }
-local QUAKE_ID = 72262
-local LK_BOSS_ID = 36597
-
-local P2_FIRST = 32.0
-local P3_FIRST = 37.5
-local NEXT_REAPER = 34.0
-local REAPER_DURATION = 5.1
-local PREWARN = 8.0
-local GLOW_LEAD = 5.0
 local LichKingEncounter = _G.GuardpointLichKing
+local REAPER_IDS = LichKingEncounter and LichKingEncounter.ReaperIDs or { [69409]=true, [73797]=true, [73798]=true, [73799]=true }
+local QUAKE_ID = LichKingEncounter and LichKingEncounter.QuakeID or 72262
+local LK_BOSS_ID = LichKingEncounter and LichKingEncounter.BossID or 36597
 
-local SPELL = {
+local P2_FIRST = LichKingEncounter and LichKingEncounter.Timing.P2First or 32.0
+local P3_FIRST = LichKingEncounter and LichKingEncounter.Timing.P3First or 37.5
+local NEXT_REAPER = LichKingEncounter and LichKingEncounter.Timing.NextReaper or 34.0
+local REAPER_DURATION = LichKingEncounter and LichKingEncounter.Timing.ReaperDuration or 5.1
+local PREWARN = LichKingEncounter and LichKingEncounter.Timing.Prewarn or 8.0
+local GLOW_LEAD = LichKingEncounter and LichKingEncounter.Timing.GlowLead or 5.0
+
+local BloodDK = _G.Guardpoint and _G.Guardpoint.BloodDK
+local SPELL = BloodDK and BloodDK.Spells or {
     TAP  = 45529,
     VB   = 55233,
     AMS  = 48707,
@@ -26,7 +27,7 @@ local SPELL = {
     PAIN = 33206,
     SAC  = 6940,
 }
-local ITEM = {
+local ITEM = BloodDK and BloodDK.Items or {
     FANG_N = 50361,
     FANG_H = 50364,
     SATRINA_N = 47080,
@@ -166,8 +167,6 @@ local function key(a)
     return a and (a.kind..":"..tostring(a.id)) or ""
 end
 
--- Compare planned buttons without relying on a global/helper that may not exist
--- in WoW 3.3.5. This was the runtime error that could stop the UI update loop.
 local function same(a,b)
     return a and b and key(a)==key(b)
 end
@@ -185,9 +184,6 @@ end
 
 local function isUsed(a) return a and state.used[key(a)] end
 
--- "Ready by" is deliberately evaluated against the END of the 5.1s Soul Reaper.
--- This lets an ability that is currently on cooldown be recommended if it comes
--- off cooldown before the tick/explosion.
 local function readyBy(a,deadline)
     if not a or isUsed(a) then return false end
     local c
@@ -213,7 +209,6 @@ end
 local function chooseCorePair(deadline)
     local out={}
     local all=coreList()
-    -- Fixed priority: Fang -> Blood Tap (only with 4T10) -> Vampiric Blood.
     for i=1,#all do
         if readyBy(all[i],deadline) then
             add(out,all[i])
@@ -234,8 +229,6 @@ local function chooseRemainingCore(deadline)
     end
 end
 
--- Pre-tick fallbacks. IMPORTANT: IBF/AMS/Army are NOT allowed to fill a
--- missing member of the two-button pre-tick pair. They are solo/end tools.
 local function choosePreFallback(deadline,exclude)
     local candidates={
         spellA(SPELL.PAIN,"pain"),
@@ -247,8 +240,6 @@ local function choosePreFallback(deadline,exclude)
     end
 end
 
--- End-of-cast solo protection. Preferred prescribed button is used if it will
--- be available by the Reaper expiration; otherwise choose a real alternative.
 local function chooseSolo(preferredID,deadline,exclude)
     local order={}
     local function put(id,k)
@@ -276,7 +267,6 @@ local function chooseTrinket(deadline,exclude)
     if a and not has(exclude,a) and readyBy(a,deadline) then return a end
 end
 
--- Exact agreed Soul Reaper sequence.
 local function buildPlan(phase,n,deadline)
     local before={}
     local after={}
@@ -286,31 +276,24 @@ local function buildPlan(phase,n,deadline)
         if n==1 or n==3 or n==5 or n==7 then
             pair=chooseCorePair(deadline)
             for i=1,#pair do add(before,pair[i]) end
-            -- If one of the two core saves is unavailable, use Teeth/Hand,
-            -- never IBF/AMS/Army as a fake "core" button.
             while #before<2 do
                 local a=choosePreFallback(deadline,before)
                 if not a then break end
                 add(before,a)
             end
-            local solo=chooseSolo(SPELL.AMS,deadline,before)
-            add(after,solo)
-
+            add(after,chooseSolo(SPELL.AMS,deadline,before))
         elseif n==2 or n==6 then
             local solo=chooseSolo(SPELL.IBF,deadline,before)
             add(before,solo)
             add(after,solo)
-
         elseif n==4 then
             add(before,chooseRemainingCore(deadline))
             add(before,chooseTrinket(deadline,before))
             add(after,chooseSolo(SPELL.ARMY,deadline,before))
-
         elseif n==8 then
             add(before,chooseRemainingCore(deadline))
             add(after,chooseSolo(SPELL.PAIN,deadline,before))
         end
-
     elseif phase==3 then
         if n==1 then
             pair=chooseCorePair(deadline)
@@ -321,12 +304,10 @@ local function buildPlan(phase,n,deadline)
                 add(before,a)
             end
             add(after,chooseSolo(SPELL.IBF,deadline,before))
-
         elseif n==2 then
             add(before,chooseRemainingCore(deadline))
             add(before,chooseTrinket(deadline,before))
             add(after,chooseSolo(SPELL.AMS,deadline,before))
-
         elseif n==3 or n==5 or n==8 then
             pair=chooseCorePair(deadline)
             for i=1,#pair do add(before,pair[i]) end
@@ -336,12 +317,10 @@ local function buildPlan(phase,n,deadline)
                 add(before,a)
             end
             add(after,chooseSolo(SPELL.AMS,deadline,before))
-
         elseif n==4 or n==7 then
             local solo=chooseSolo(SPELL.IBF,deadline,before)
             add(before,solo)
             add(after,solo)
-
         elseif n==6 then
             add(before,chooseRemainingCore(deadline))
             add(after,chooseSolo(SPELL.PAIN,deadline,before))
@@ -389,17 +368,11 @@ local function createUI()
         b:SetWidth(40); b:SetHeight(40)
         b:SetFrameLevel(f:GetFrameLevel()+2)
 
-        -- The actual icon texture.  This must be created before any state
-        -- update tries to tint/darken it.  A previous rebuild accidentally
-        -- omitted this texture, which caused layout() to error and stopped
-        -- /guardpoint test/OnUpdate entirely.
         b.icon=b:CreateTexture(nil,"BACKGROUND")
         b.icon:SetAllPoints(b)
         b.icon:SetTexCoord(0.07,0.93,0.07,0.93)
         b.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
 
-        -- WA-like INSIDE glow.  The moving green pixels stay inside the
-        -- icon itself; there is no external frame, border, or stray pixel.
         b.glowPixels={}
         local glowPoints={
             {-15,-18},{-7,-18},{1,-18},{9,-18},{15,-18},
@@ -419,9 +392,6 @@ local function createUI()
             b.glowPixels[i]=tex
         end
 
-        -- Button cooldown text is normally invisible. It is shown ONLY during
-        -- the pre-Reaper window when the ability is currently on cooldown but
-        -- will become ready before the planned Reaper. It stays centered.
         b.cd=b:CreateFontString(nil,"OVERLAY")
         b.cd:SetFont("Fonts\\FRIZQT__.TTF",22,"OUTLINE")
         b.cd:SetPoint("CENTER",b,"CENTER",0,0)
@@ -429,8 +399,6 @@ local function createUI()
         b.cd:SetShadowColor(0,0,0,1); b.cd:SetShadowOffset(1,-1)
         b.cd:Hide()
 
-        -- Green check mark. Use the Blizzard ReadyCheck texture that was
-        -- already working on the 3.3.5 client; do not use custom TGA.
         b.used=b:CreateTexture(nil,"OVERLAY")
         b.used:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
         b.used:SetWidth(22); b.used:SetHeight(22)
@@ -443,13 +411,8 @@ local function createUI()
         b:Hide()
         return b
     end
-    for i=1,2 do
-        f.before[i]=button()
-        f.after[i]=button()
-    end
+    for i=1,2 do f.before[i]=button(); f.after[i]=button() end
 
-    -- Custom arrow texture, included in the addon. It is intentionally small
-    -- and sits exactly between "before" and "after".
     f.arrow=f:CreateTexture(nil,"OVERLAY")
     f.arrow:SetTexture("Interface\\AddOns\\Guardpoint\\arrow.tga")
     f.arrow:SetWidth(20); f.arrow:SetHeight(20)
@@ -463,7 +426,6 @@ local function placeButtons(list,buttons,cx)
     local n=math.min(2,#list)
     for i=1,2 do buttons[i]:Hide() end
     if n==0 then return end
-
     if n==1 then
         buttons[1]:ClearAllPoints()
         buttons[1]:SetPoint("CENTER",UI.frame,"CENTER",cx,-31)
@@ -471,8 +433,7 @@ local function placeButtons(list,buttons,cx)
         buttons[1].icon:SetTexture(iconFor(list[1]))
         buttons[1]:Show()
     else
-        buttons[1]:ClearAllPoints()
-        buttons[2]:ClearAllPoints()
+        buttons[1]:ClearAllPoints(); buttons[2]:ClearAllPoints()
         buttons[1]:SetPoint("CENTER",UI.frame,"CENTER",cx-22,-31)
         buttons[2]:SetPoint("CENTER",UI.frame,"CENTER",cx+22,-31)
         for i=1,2 do
@@ -487,13 +448,9 @@ local function layout()
     local f=UI.frame
     local b=f.planBefore or {}
     local a=f.planAfter or {}
-
     f.arrow:Hide()
     for i=1,2 do f.before[i]:Hide(); f.after[i]:Hide() end
 
-    -- Solo carry (IBF -> IBF): one physical icon stays centered.
-    -- The same icon changes glow from pre to post; it is NOT duplicated.
-    -- The arrow remains visible, as in the previous UI, when a post action exists.
     if #b==1 and #a==1 and same(b[1],a[1]) then
         local btn=f.before[1]
         btn:ClearAllPoints()
@@ -501,26 +458,20 @@ local function layout()
         btn.data=b[1]
         btn.icon:SetTexture(iconFor(b[1]))
         btn:Show()
-
-        -- Solo carry is a single centered button: NO arrow.
         f.arrow:Hide()
         return
     end
 
     if #b>0 and #a>0 then
-        local beforeCenter = -51
-        local afterCenter = 51
-
+        local beforeCenter=-51
+        local afterCenter=51
         placeButtons(b,f.before,beforeCenter)
         placeButtons(a,f.after,afterCenter)
-
-        -- Put the arrow exactly in the physical gap between the nearest icons.
-        local nearestBefore = beforeCenter + (#b == 2 and 22 or 0)
-        local nearestAfter  = afterCenter  - (#a == 2 and 22 or 0)
-        local arrowX = (nearestBefore + nearestAfter) / 2
+        local nearestBefore=beforeCenter+(#b==2 and 22 or 0)
+        local nearestAfter=afterCenter-(#a==2 and 22 or 0)
+        local arrowX=(nearestBefore+nearestAfter)/2
         f.arrow:ClearAllPoints()
         f.arrow:SetPoint("CENTER",f,"CENTER",arrowX,-31)
-        f.arrow:SetWidth(20); f.arrow:SetHeight(20)
         f.arrow:Show()
     elseif #b>0 then
         placeButtons(b,f.before,0)
@@ -535,14 +486,9 @@ local function render()
     createUI()
     local f=UI.frame
     if not state.plan then f:Hide(); return end
-
-    -- IMPORTANT: the layout NEVER changes when Soul Reaper procs.
-    -- Both sides remain visible: [pre] [pre] > [post].
-    -- Only the green action glow changes from left to right.
     f.planBefore=state.plan.before or {}
     f.planAfter=state.plan.after or {}
     layout()
-
     if state.active then
         f.timer:SetText(string.format("%.1f",math.max(0,(state.expire or tnow())-tnow())))
     elseif state.nextAt then
@@ -550,7 +496,6 @@ local function render()
     else
         f.timer:SetText("")
     end
-
     f:Show()
     updateButtonState()
 end
@@ -568,95 +513,60 @@ updateButtonState=function()
             if b.glowPixels then
                 for i=1,#b.glowPixels do b.glowPixels[i]:SetAlpha(0); b.glowPixels[i]:Hide() end
             end
-            b.used:Hide()
-            b.wasReady=false
+            b.used:Hide(); b.wasReady=false
             return
         end
-
         local c=(a.kind=="item") and itemCD(a.slot) or spellCD(a.id)
         local ready=(c<=0.08)
         local actionable=((side==1 and preActive) or (side==2 and postActive))
-
-        -- A button can be used either through the spell cast event or by an
-        -- item.  For items, detect the cooldown transition from READY -> CD.
         if actionable and ready then
             b.wasReady=true
         elseif b.wasReady and c>0.08 then
             state.used[key(a)]=true
             b.wasReady=false
         end
-
         local used=isUsed(a)
-        if used then
-            -- Slightly darken used buttons and put the check over the icon.
-            b.icon:SetVertexColor(0.55,0.55,0.55,1)
-            b.used:Show()
-        else
-            b.icon:SetVertexColor(1,1,1,1)
-            b.used:Hide()
-        end
+        if used then b.icon:SetVertexColor(0.55,0.55,0.55,1); b.used:Show()
+        else b.icon:SetVertexColor(1,1,1,1); b.used:Hide() end
 
-        -- Button timer is shown ONLY in the useful edge case: the ability is
-        -- currently on cooldown, but its cooldown ends before the next Reaper.
-        -- In every other situation the icon has no number on it.
         local showCD=false
-        local untilReaper = state.nextAt and (state.nextAt-t) or nil
-        if not state.active and untilReaper and untilReaper>0 and c>0.08 and c<=untilReaper+0.10 then
-            showCD=true
-        end
+        local untilReaper=state.nextAt and (state.nextAt-t) or nil
+        if not state.active and untilReaper and untilReaper>0 and c>0.08 and c<=untilReaper+0.10 then showCD=true end
         if showCD then
-            b.cd:SetText(c>=10 and string.format("%.0f",c) or string.format("%.1f",c))
-            b.cd:Show()
+            b.cd:SetText(c>=10 and string.format("%.0f",c) or string.format("%.1f",c)); b.cd:Show()
         else
-            b.cd:SetText("")
-            b.cd:Hide()
+            b.cd:SetText(""); b.cd:Hide()
         end
 
-        -- WA-like animated glow, kept inside the icon.  A bright point travels
-        -- around the inner edge and neighbouring points fade into it.
         local function setPixelGlow(on)
             local count=#b.glowPixels
             for i=1,count do
                 local tex=b.glowPixels[i]
                 if on then
-                    local phase=((t*6.0) - (i-1)*0.60) % count
+                    local phase=((t*6.0)-(i-1)*0.60)%count
                     local dist=math.min(phase,count-phase)
-                    local alpha=0.16 + 0.84*math.exp(-(dist*dist)/2.6)
-                    tex:SetAlpha(alpha)
-                    tex:Show()
+                    local alpha=0.16+0.84*math.exp(-(dist*dist)/2.6)
+                    tex:SetAlpha(alpha); tex:Show()
                 else
-                    tex:SetAlpha(0)
-                    tex:Hide()
+                    tex:SetAlpha(0); tex:Hide()
                 end
             end
         end
         setPixelGlow(actionable and ready and not used)
     end
 
-    -- Solo carry has one physical centered icon. Its glow simply changes phase.
     if #((f.planBefore) or {})==1 and #((f.planAfter) or {})==1 and same(f.planBefore[1],f.planAfter[1]) then
-        updateOne(f.before[1], state.active and 2 or 1)
-        if f.after[1].glowPixels then
-            for i=1,#f.after[1].glowPixels do f.after[1].glowPixels[i]:SetAlpha(0); f.after[1].glowPixels[i]:Hide() end
-        end
+        updateOne(f.before[1],state.active and 2 or 1)
+        if f.after[1].glowPixels then for i=1,#f.after[1].glowPixels do f.after[1].glowPixels[i]:SetAlpha(0); f.after[1].glowPixels[i]:Hide() end end
         f.after[1].data=nil
         return
     end
-
-    for i=1,2 do
-        updateOne(f.before[i],1)
-        updateOne(f.after[i],2)
-    end
+    for i=1,2 do updateOne(f.before[i],1); updateOne(f.after[i],2) end
 end
-
 
 local function scheduleNext()
     local delay
-    if state.reaper==0 then
-        delay=(state.phase==3 and P3_FIRST or P2_FIRST)
-    else
-        delay=NEXT_REAPER
-    end
+    if state.reaper==0 then delay=(state.phase==3 and P3_FIRST or P2_FIRST) else delay=NEXT_REAPER end
     state.nextNumber=state.reaper+1
     if state.nextNumber>8 then state.nextNumber=1 end
     state.nextAt=tnow()+delay
@@ -674,17 +584,11 @@ local function startReaper(expiration,isTest)
     local t=tnow()
     if t-state.lastApplied<0.15 then return end
     state.lastApplied=t
-
     state.reaper=state.reaper+1
     if state.reaper>8 then state.reaper=1 end
-
     state.active=true
     state.test=isTest and true or false
     state.expire=(expiration and expiration>t) and expiration or (t+REAPER_DURATION)
-
-    -- IMPORTANT: if the pre-warning already built a plan and the player has
-    -- pressed a left-side button, KEEP that exact plan and used-state.
-    -- Starting Soul Reaper must NEVER recalculate the left side.
     if not state.plan then
         state.used={}
         local b,a,pair=buildPlan(state.phase,state.reaper,state.expire)
@@ -696,16 +600,8 @@ local function startReaper(expiration,isTest)
 end
 
 local function phaseReset(p)
-    state.phase=p
-    state.reaper=0
-    state.nextAt=nil
-    state.nextNumber=1
-    state.active=false
-    state.expire=0
-    state.plan=nil
-    state.used={}
-    state.corePair=nil
-    state.test=false
+    state.phase=p; state.reaper=0; state.nextAt=nil; state.nextNumber=1
+    state.active=false; state.expire=0; state.plan=nil; state.used={}; state.corePair=nil; state.test=false
     scheduleNext()
     if UI.frame then UI.frame:Hide() end
 end
@@ -716,9 +612,7 @@ local function markSpellUsed(id)
         local list=state.plan[listName]
         for i=1,#list do
             local a=list[i]
-            if a.kind=="spell" and a.id==id then
-                state.used[key(a)]=true
-            end
+            if a.kind=="spell" and a.id==id then state.used[key(a)]=true end
         end
     end
 end
@@ -729,39 +623,29 @@ local function markItemUsed(slot)
         local list=state.plan[listName]
         for i=1,#list do
             local a=list[i]
-            if a.kind=="item" and a.slot==slot then
-                state.used[key(a)]=true
-            end
+            if a.kind=="item" and a.slot==slot then state.used[key(a)]=true end
         end
     end
 end
 
 local function hookItemUse()
     if not hooksecurefunc then return end
-    if UseInventoryItem then
-        hooksecurefunc("UseInventoryItem", function(slot)
-            markItemUsed(slot)
-        end)
-    end
+    if UseInventoryItem then hooksecurefunc("UseInventoryItem",function(slot) markItemUsed(slot) end) end
     if UseAction and GetActionInfo then
-        hooksecurefunc("UseAction", function(action)
+        hooksecurefunc("UseAction",function(action)
             local typ,id=GetActionInfo(action)
-            if typ=="item" and id then
-                if not state.plan then return end
+            if typ=="item" and id and state.plan then
                 for _,listName in ipairs({"before","after"}) do
                     local list=state.plan[listName]
                     for i=1,#list do
                         local a=list[i]
-                        if a.kind=="item" and a.id==id then
-                            state.used[key(a)]=true
-                        end
+                        if a.kind=="item" and a.id==id then state.used[key(a)]=true end
                     end
                 end
             end
         end)
     end
 end
-
 
 local function scanReaper()
     return LichKingEncounter and LichKingEncounter.ScanSoulReaper() or nil
@@ -777,98 +661,50 @@ end
 
 local function startEncounter(guid)
     if state.encounter then return end
-    state.encounter=true
-    state.encounterGUID=guid or findLKUnit()
-    state.encounterStart=tnow()
-    state.phase=1
-    state.reaper=0
-    state.nextAt=nil
-    state.nextNumber=1
-    state.active=false
-    state.expire=0
-    state.plan=nil
-    state.used={}
-    state.corePair=nil
-    state.test=false
+    state.encounter=true; state.encounterGUID=guid or findLKUnit(); state.encounterStart=tnow()
+    state.phase=1; state.reaper=0; state.nextAt=nil; state.nextNumber=1; state.active=false; state.expire=0
+    state.plan=nil; state.used={}; state.corePair=nil; state.test=false
 end
 
 local function stopEncounter()
-    state.encounter=false
-    state.encounterGUID=nil
-    state.encounterStart=0
-    state.active=false
-    state.expire=0
-    state.nextAt=nil
-    state.nextNumber=1
-    state.reaper=0
-    state.plan=nil
-    state.used={}
-    state.corePair=nil
-    state.test=false
+    state.encounter=false; state.encounterGUID=nil; state.encounterStart=0; state.active=false; state.expire=0
+    state.nextAt=nil; state.nextNumber=1; state.reaper=0; state.plan=nil; state.used={}; state.corePair=nil; state.test=false
     if UI.frame then UI.frame:Hide() end
 end
 
 local function bossStillPresent()
-    if LichKingEncounter and LichKingEncounter.IsUnitPresent(state.encounterGUID) then
-        return true
-    end
+    if LichKingEncounter and LichKingEncounter.IsUnitPresent(state.encounterGUID) then return true end
     return findLKUnit() ~= nil
 end
 
 local function eventFrame()
     local e=CreateFrame("Frame","GP_Events",UIParent)
-    e:RegisterEvent("PLAYER_LOGIN")
-    e:RegisterEvent("PLAYER_ENTERING_WORLD")
-    e:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    e:RegisterEvent("UNIT_AURA")
-    e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-    e:RegisterEvent("PLAYER_UNGHOST")
-    e:RegisterEvent("PLAYER_REGEN_ENABLED")
-    e:RegisterEvent("UNIT_TARGET")
-    e:RegisterEvent("PLAYER_TARGET_CHANGED")
+    e:RegisterEvent("PLAYER_LOGIN"); e:RegisterEvent("PLAYER_ENTERING_WORLD"); e:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    e:RegisterEvent("UNIT_AURA"); e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED"); e:RegisterEvent("PLAYER_UNGHOST"); e:RegisterEvent("PLAYER_REGEN_ENABLED")
+    e:RegisterEvent("UNIT_TARGET"); e:RegisterEvent("PLAYER_TARGET_CHANGED")
     hookItemUse()
 
     e:SetScript("OnEvent",function(self,event,...)
         if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then
             if _G.Guardpoint and _G.Guardpoint.BloodDK then
-                SPELL = _G.Guardpoint.BloodDK.Spells or SPELL
-                ITEM = _G.Guardpoint.BloodDK.Items or ITEM
+                SPELL=_G.Guardpoint.BloodDK.Spells or SPELL
+                ITEM=_G.Guardpoint.BloodDK.Items or ITEM
             end
-            -- Encounter data is loaded as a separate module, but is only
-            -- read after login.  The local values above remain safe fallbacks
-            -- if the module is absent or incomplete.
-            local lk = _G.Guardpoint and _G.Guardpoint.LichKing
+            local lk=_G.Guardpoint and _G.Guardpoint.LichKing
             if lk then
-                REAPER_IDS = lk.ReaperIDs or REAPER_IDS
-                QUAKE_ID = lk.QuakeID or QUAKE_ID
-                LK_BOSS_ID = lk.BossID or LK_BOSS_ID
-                local timing = lk.Timing
+                REAPER_IDS=lk.ReaperIDs or REAPER_IDS; QUAKE_ID=lk.QuakeID or QUAKE_ID; LK_BOSS_ID=lk.BossID or LK_BOSS_ID
+                local timing=lk.Timing
                 if timing then
-                    P2_FIRST = timing.P2First or P2_FIRST
-                    P3_FIRST = timing.P3First or P3_FIRST
-                    NEXT_REAPER = timing.NextReaper or NEXT_REAPER
-                    REAPER_DURATION = timing.ReaperDuration or REAPER_DURATION
-                    PREWARN = timing.Prewarn or PREWARN
-                    GLOW_LEAD = timing.GlowLead or GLOW_LEAD
+                    P2_FIRST=timing.P2First or P2_FIRST; P3_FIRST=timing.P3First or P3_FIRST; NEXT_REAPER=timing.NextReaper or NEXT_REAPER
+                    REAPER_DURATION=timing.ReaperDuration or REAPER_DURATION; PREWARN=timing.Prewarn or PREWARN; GLOW_LEAD=timing.GlowLead or GLOW_LEAD
                 end
             end
-            stopEncounter()
-            return
+            stopEncounter(); return
         end
 
-        if event=="PLAYER_UNGHOST" then
-            -- Releasing the corpse ends the encounter for this assistant.
-            stopEncounter()
-            return
-        end
-
+        if event=="PLAYER_UNGHOST" then stopEncounter(); return end
         if event=="PLAYER_REGEN_ENABLED" then
-            -- A normal combat end without a boss death (wipe/evade) also ends
-            -- the encounter. Do NOT use PLAYER_DEAD: dying alone must not hide
-            -- the assistant before the corpse is released.
-            if state.encounter and not bossStillPresent() then
-                stopEncounter()
-            end
+            if state.encounter and not bossStillPresent() then stopEncounter() end
             return
         end
 
@@ -878,26 +714,12 @@ local function eventFrame()
                 local exp=scanReaper()
                 if exp then
                     if not state.encounter then startEncounter(findLKUnit()) end
-                    -- A direct .aura 69409 test has no Quake event, so there is
-                    -- no real phase transition to P2. Soul Reaper itself can
-                    -- only occur from P2 onward; treat a first detected Reaper
-                    -- while still in the initial P1 state as P2 #1. This also
-                    -- makes the same UNIT_AURA path work for the manual test
-                    -- and for a real encounter if the phase event was missed.
                     if state.phase==1 then
-                        state.phase=2
-                        state.reaper=0
-                        state.nextAt=nil
-                        state.nextNumber=1
-                        state.plan=nil
-                        state.used={}
-                        state.corePair=nil
+                        state.phase=2; state.reaper=0; state.nextAt=nil; state.nextNumber=1; state.plan=nil; state.used={}; state.corePair=nil
                     end
                     if not state.active then startReaper(exp,false) else state.expire=exp end
                 elseif state.active and not state.test then
-                    state.active=false
-                    state.plan=nil
-                    UI.frame:Hide()
+                    state.active=false; state.plan=nil; UI.frame:Hide()
                 end
             end
             return
@@ -906,9 +728,7 @@ local function eventFrame()
         if event=="UNIT_TARGET" or event=="PLAYER_TARGET_CHANGED" then
             if not state.encounter then
                 local g=findLKUnit()
-                if g and UnitAffectingCombat("player") then
-                    startEncounter(g)
-                end
+                if g and UnitAffectingCombat("player") then startEncounter(g) end
             end
             return
         end
@@ -919,66 +739,28 @@ local function eventFrame()
             return
         end
 
-        -- WoW 3.3.5 legacy combat-log layout verified on the user's client:
-        -- arg2=subEvent, arg3=sourceGUID, arg6=destGUID, arg9=spellID.
-        local subEvent=arg2
-        local sourceGUID=arg3
-        local destGUID=arg6
-        local spellID=arg9
+        local subEvent=arg2; local sourceGUID=arg3; local destGUID=arg6; local spellID=arg9
 
-        -- The addon is completely dormant outside an LK encounter. A combat-log
-        -- event sourced by LK is a reliable encounter-start signal even if the
-        -- player is not targeting the boss.
         if sourceGUID and isLKGUID(sourceGUID) then
             if not state.encounter then startEncounter(sourceGUID) end
             state.encounterGUID=sourceGUID
         end
 
-        -- Boss death: stop only when LK actually dies, not on a random player death.
         if subEvent=="UNIT_DIED" and destGUID and state.encounterGUID and destGUID==state.encounterGUID then
-            stopEncounter()
-            return
+            stopEncounter(); return
         end
 
         if spellID and REAPER_IDS[spellID] and destGUID==UnitGUID("player") then
             if subEvent=="SPELL_AURA_APPLIED" or subEvent=="SPELL_AURA_APPLIED_DOSE" then
-                local exp=scanReaper()
-                startReaper(exp,false)
+                local exp=scanReaper(); startReaper(exp,false)
             elseif subEvent=="SPELL_AURA_REMOVED" then
-                if state.active and not state.test then
-                    state.active=false
-                    state.expire=0
-                    state.plan=nil
-                    state.used={}
-                    UI.frame:Hide()
-                end
+                if state.active and not state.test then state.active=false; state.expire=0; state.plan=nil; state.used={}; UI.frame:Hide() end
             end
         elseif subEvent=="SPELL_CAST_START" and spellID==QUAKE_ID and state.encounter then
-            -- LK encounter starts in P1. First Quake -> P2, second Quake -> P3.
             if state.phase==1 then
-                state.phase=2
-                state.reaper=0
-                state.nextAt=nil
-                state.nextNumber=1
-                state.active=false
-                state.expire=0
-                state.plan=nil
-                state.used={}
-                state.corePair=nil
-                scheduleNext() -- P2 first Reaper: 32s
-                UI.frame:Hide()
+                state.phase=2; state.reaper=0; state.nextAt=nil; state.nextNumber=1; state.active=false; state.expire=0; state.plan=nil; state.used={}; state.corePair=nil; scheduleNext(); UI.frame:Hide()
             elseif state.phase==2 then
-                state.phase=3
-                state.reaper=0
-                state.nextAt=nil
-                state.nextNumber=1
-                state.active=false
-                state.expire=0
-                state.plan=nil
-                state.used={}
-                state.corePair=nil
-                scheduleNext() -- P3 first Reaper: 37.5s
-                UI.frame:Hide()
+                state.phase=3; state.reaper=0; state.nextAt=nil; state.nextNumber=1; state.active=false; state.expire=0; state.plan=nil; state.used={}; state.corePair=nil; scheduleNext(); UI.frame:Hide()
             end
         elseif subEvent=="SPELL_CAST_SUCCESS" and sourceGUID==UnitGUID("player") then
             markSpellUsed(spellID)
@@ -987,46 +769,26 @@ local function eventFrame()
 
     e:SetScript("OnUpdate",function()
         local t=tnow()
-        if not state.encounter and not state.test then
-            if UI.frame then UI.frame:Hide() end
-            return
-        end
-
+        if not state.encounter and not state.test then if UI.frame then UI.frame:Hide() end; return end
         if state.active then
             if t>=state.expire then
-                state.active=false
-                state.test=false
-                state.expire=0
-                state.plan=nil
-                state.used={}
-                if UI.frame then UI.frame:Hide() end
-                return
+                state.active=false; state.test=false; state.expire=0; state.plan=nil; state.used={}; if UI.frame then UI.frame:Hide() end; return
             end
-
-            -- The complete [pre] [pre] > [post] plan is frozen for this
-            -- Reaper. Cooldown changes never replace the planned buttons.
             render()
         else
             if state.nextAt then
                 local left=state.nextAt-t
                 if left<=PREWARN and left>0 then
-                    if not state.plan then
-                        local b,a=buildPlan(state.phase,state.nextNumber,state.nextAt)
-                        state.plan={before=b,after=a}
-                    end
+                    if not state.plan then local b,a=buildPlan(state.phase,state.nextNumber,state.nextAt); state.plan={before=b,after=a} end
                     render()
                 elseif left<=0 then
-                    if not state.plan then
-                        local b,a=buildPlan(state.phase,state.nextNumber,t)
-                        state.plan={before=b,after=a}
-                    end
+                    if not state.plan then local b,a=buildPlan(state.phase,state.nextNumber,t); state.plan={before=b,after=a} end
                     render()
                 else
                     UI.frame:Hide()
                 end
             end
         end
-
         updateButtonState()
     end)
 end
@@ -1038,65 +800,25 @@ SlashCmdList["GUARDPOINT"]=function(msg)
     if msg=="" or msg=="help" then
         DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGuardpoint|r: /guardpoint test | pre | p2 | p3 | reset | show | hide | lock | unlock | 4t10 on/off/auto")
     elseif msg=="test" then
-        -- Test mode must enter the same ACTIVE state as a real Soul Reaper.
-        -- The previous version left active=false while expire was set, so
-        -- render() tried to use nextAt=nil and the OnUpdate loop stopped.
-        state.test=true
-        state.encounter=false
-        state.active=true
-        state.phase=2
-        state.reaper=state.reaper+1
+        state.test=true; state.encounter=false; state.active=true; state.phase=2; state.reaper=state.reaper+1
         if state.reaper>8 then state.reaper=1 end
-        state.expire=tnow()+REAPER_DURATION
-        state.nextAt=nil
-        state.used={}
-        local b,a,pair=buildPlan(state.phase,state.reaper,state.expire)
-        state.plan={before=b,after=a}
-        saveCorePair(pair)
-        render()
+        state.expire=tnow()+REAPER_DURATION; state.nextAt=nil; state.used={}
+        local b,a,pair=buildPlan(state.phase,state.reaper,state.expire); state.plan={before=b,after=a}; saveCorePair(pair); render()
         DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r test: P"..state.phase.." Жнец #"..state.reaper)
     elseif msg=="pre" then
-        state.test=false
-        state.active=false
-        state.reaper=0
-        state.nextNumber=1
-        state.nextAt=tnow()+PREWARN
-        state.plan=nil
-        UI.frame:Hide()
+        state.test=false; state.active=false; state.reaper=0; state.nextNumber=1; state.nextAt=tnow()+PREWARN; state.plan=nil; UI.frame:Hide()
         DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r pre: P2 Жнец #1 через 8 сек")
-    elseif msg=="p2" then
-        phaseReset(2)
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r P2")
-    elseif msg=="p3" then
-        phaseReset(3)
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r P3")
-    elseif msg=="reset" then
-        phaseReset(2)
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r reset")
-    elseif msg=="show" then
-        createUI()
-        UI.frame:Show()
-        UI.frame.timer:SetText("TEST")
-    elseif msg=="hide" then
-        UI.frame:Hide()
-    elseif msg=="lock" then
-        DB.locked=true
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r locked")
-    elseif msg=="unlock" then
-        DB.locked=false
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r unlocked")
-    elseif msg=="4t10 on" then
-        state.t10Override=true
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 ON")
-    elseif msg=="4t10 off" then
-        state.t10Override=false
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 OFF")
-    elseif msg=="4t10 auto" then
-        state.t10Override=nil
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 AUTO")
-    else
-        DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r неизвестная команда. /guardpoint help")
-    end
+    elseif msg=="p2" then phaseReset(2); DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r P2")
+    elseif msg=="p3" then phaseReset(3); DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r P3")
+    elseif msg=="reset" then phaseReset(2); DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r reset")
+    elseif msg=="show" then createUI(); UI.frame:Show(); UI.frame.timer:SetText("TEST")
+    elseif msg=="hide" then UI.frame:Hide()
+    elseif msg=="lock" then DB.locked=true; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r locked")
+    elseif msg=="unlock" then DB.locked=false; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r unlocked")
+    elseif msg=="4t10 on" then state.t10Override=true; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 ON")
+    elseif msg=="4t10 off" then state.t10Override=false; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 OFF")
+    elseif msg=="4t10 auto" then state.t10Override=nil; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 AUTO")
+    else DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r неизвестная команда. /guardpoint help") end
 end
 
 if DB.locked==nil then DB.locked=false end
