@@ -41,8 +41,7 @@ end
 local function saveCorePair(pair,number)
     if not pair or not number then return end
     local encounter=resolveEncounter()
-    local soulReaper=encounter and encounter.GetSoulReaper and encounter:GetSoulReaper()
-    local shouldSave=soulReaper and soulReaper.ShouldSaveCorePair and soulReaper.ShouldSaveCorePair(S.phase,number)
+    local shouldSave=encounter and encounter.ShouldSaveCorePair and encounter.ShouldSaveCorePair(S.phase,number)
     if shouldSave then S.corePair={};for i=1,#pair do S.corePair[#S.corePair+1]=U.copy(pair[i]) end end
 end
 local function startReaper(expiration,isTest)
