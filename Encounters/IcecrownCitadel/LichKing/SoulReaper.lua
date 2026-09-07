@@ -62,16 +62,19 @@ function SoulReaper.IsActionValid(action)
     return type(action) == "string" and SoulReaper.ValidActions[action] == true
 end
 
+local function validActionList(list)
+    if type(list) ~= "table" or #list == 0 then return false end
+    for i = 1, #list do
+        if not SoulReaper.IsActionValid(list[i]) then return false end
+    end
+    return true
+end
+
 function SoulReaper.GetActions(phase, number)
     if not SoulReaper.IsValid(phase, number) then return nil end
     local plan = planData(phase)[number]
     if not plan then return nil end
-
-    for _, list in pairs({ plan.before, plan.after }) do
-        for i = 1, #list do
-            if not SoulReaper.IsActionValid(list[i]) then return nil end
-        end
-    end
+    if not validActionList(plan.before) or not validActionList(plan.after) then return nil end
 
     return {
         before = plan.before,
