@@ -62,6 +62,14 @@ function LichKing.GetSoulReaperPlan(phase, number)
     end
 end
 
+function LichKing.ShouldSaveCorePair(phase, number)
+    local soulReaper = LichKing.GetSoulReaper()
+    if soulReaper and soulReaper.ShouldSaveCorePair then
+        return soulReaper.ShouldSaveCorePair(phase, number)
+    end
+    return false
+end
+
 function LichKing.GetReaperDelay(phase, reaper)
     local timing = LichKing.Timing
     if not timing then return nil end
