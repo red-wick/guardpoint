@@ -34,13 +34,6 @@ local ITEM = BloodDK and BloodDK.Items or {
     SATRINA_H = 47088,
     KEY = 50356,
 }
-local ACTION_SPELLS = BloodDK and BloodDK.ActionSpells or {
-    ams = 48707,
-    ibf = 48792,
-    army = 42650,
-    pain = 33206,
-    sac = 6940,
-}
 
 local state = {
     phase = 1,
@@ -282,7 +275,11 @@ local function soulReaperPlan(phase,n)
 end
 
 local function actionSpellID(name)
-    return ACTION_SPELLS[name]
+    if name=="ams" then return SPELL.AMS end
+    if name=="ibf" then return SPELL.IBF end
+    if name=="army" then return SPELL.ARMY end
+    if name=="pain" then return SPELL.PAIN end
+    if name=="sac" then return SPELL.SAC end
 end
 
 local function buildActionList(tokens,deadline,corePair)
@@ -697,7 +694,6 @@ local function eventFrame()
             if _G.Guardpoint and _G.Guardpoint.BloodDK then
                 SPELL=_G.Guardpoint.BloodDK.Spells or SPELL
                 ITEM=_G.Guardpoint.BloodDK.Items or ITEM
-                ACTION_SPELLS=_G.Guardpoint.BloodDK.ActionSpells or ACTION_SPELLS
             end
             local lk=_G.Guardpoint and _G.Guardpoint.LichKing
             if lk then
