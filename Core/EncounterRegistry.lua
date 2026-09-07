@@ -41,3 +41,7 @@ function R:Detect()
     if not GetCurrentMapAreaID then return nil end
     return self:Select(GetCurrentMapAreaID())
 end
+
+function R:Resolve()
+    return self:GetActive() or self:Detect()
+end
