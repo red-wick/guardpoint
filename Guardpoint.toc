@@ -2,18 +2,27 @@
 ## Title: Guardpoint
 ## Notes: Defensive Timing
 ## Author: Guardpoint Team
-## Version: 1.0.2
+## Version: 1.1.0
 ## SavedVariables: GuardpointDB
+
+Core/ClassRegistry.lua
+Core/EncounterRegistry.lua
+
+Classes/DeathKnight/Blood.lua
 
 Encounters/IcecrownCitadel/LichKing/Encounter.lua
 Encounters/IcecrownCitadel/LichKing/SoulReaper.lua
-Classes/DeathKnight/Blood.lua
+
 Core/State.lua
 Core/Util.lua
 Core/Resources.lua
 Core/Planner.lua
+
 UI/Main.lua
+
 Runtime/Events.lua
 Runtime/Commands.lua
+
 Guardpoint.lua
 arrow.tga
+check.tga
