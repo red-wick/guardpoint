@@ -52,7 +52,6 @@ local function findLKUnit() local encounter=resolveEncounter();return encounter 
 local function startEncounter(guid)
     if S.encounter then return end
     local encounter=resolveEncounter();S.encounter=true;S.encounterGUID=guid or (encounter and encounter.FindUnit and encounter.FindUnit()) or nil;S.encounterStart=U.now();S.phase=1;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false
-    scheduleNext()
 end
 local function stopEncounter()
     S.encounter=false;S.encounterGUID=nil;S.encounterStart=0;S.active=false;S.expire=0;S.nextAt=nil;S.nextNumber=1;S.reaper=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false;if UI.frame then UI.frame:Hide() end
