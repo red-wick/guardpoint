@@ -25,6 +25,11 @@ local SoulReaper = {
     },
 }
 
+function SoulReaper.GetStrategy(phase, number)
+    local phaseData = phase == 2 and SoulReaper.Phase2 or SoulReaper.Phase3
+    return phaseData and phaseData[number] or nil
+end
+
 ns.LichKingSoulReaper = SoulReaper
 
 if _G.GuardpointLichKing then
