@@ -5,6 +5,7 @@ _G.Guardpoint = NS
 NS.BloodDK = NS.BloodDK or {
     Class = "DEATHKNIGHT",
     Spec = "BLOOD",
+    SpecTree = 1,
 
     Features = {
         FourT10 = true,
