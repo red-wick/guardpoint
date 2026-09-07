@@ -44,6 +44,7 @@ NS.BloodDK = NS.BloodDK or {
         },
         PreFallback = {"PAIN", "SAC"},
         SoloPriority = {"IBF", "AMS", "ARMY", "PAIN", "SAC"},
+        Trinkets = {"satrina", "key"},
     },
 }
 
