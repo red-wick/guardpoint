@@ -1,5 +1,5 @@
 -- Guardpoint state
-local NS = _G.Guardpoint
+local _, NS = ...
 
 NS.State = NS.State or {}
 local S = NS.State
