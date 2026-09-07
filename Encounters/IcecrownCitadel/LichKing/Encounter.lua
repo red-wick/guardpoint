@@ -1,5 +1,5 @@
-local NS = _G.Guardpoint or {}
-_G.Guardpoint = NS
+local _, NS = ...
+NS = NS or {}
 
 local LichKing = {
     Id = "IcecrownCitadel/LichKing",
