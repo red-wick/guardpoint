@@ -99,7 +99,8 @@ function X.initialize()
         if event=="UNIT_AURA" then local unit=...;if unit=="player" then local exp=scanReaper();if exp then if not S.encounter then startEncounter(findLKUnit()) end;if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.plan=nil;S.used={};S.corePair=nil end;if not S.active then startReaper(exp,false) else S.expire=exp;hostShow(string.format("SOUL REAPER #%d  %.1f",S.reaper,math.max(0,exp-U.now())));UI.render() end end end;return end
         if event=="UNIT_TARGET" or event=="PLAYER_TARGET_CHANGED" then if not S.encounter then local g=findLKUnit();if g and UnitAffectingCombat("player") then startEncounter(g) end end;return end
         if event=="UNIT_SPELLCAST_SUCCEEDED" then local unit,_,sid=...;if unit=="player" and sid then markSpellUsed(sid) end;return end
-        local subEvent=arg2;local sourceGUID=arg3;local destGUID=arg6;local spellID=arg9;local encounter=resolveEncounter()
+        local timestamp,subEvent,hideCaster,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,spellID=...
+        local encounter=resolveEncounter()
         if sourceGUID and encounter and encounter.IsBossGUID and encounter.IsBossGUID(sourceGUID) then if not S.encounter then startEncounter(sourceGUID) end;S.encounterGUID=sourceGUID end
         if subEvent=="UNIT_DIED" and destGUID and S.encounterGUID and destGUID==S.encounterGUID then stopEncounter();return end
         if spellID and encounter and encounter.IsReaperSpell and encounter.IsReaperSpell(spellID) and destGUID==UnitGUID("player") then
