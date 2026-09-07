@@ -11,6 +11,7 @@ Core/Util.lua
 Classes/DeathKnight/Blood.lua
 Core/Class.lua
 Core/Resources.lua
+Classes/DeathKnight/Blood/Planner.lua
 Encounters/IcecrownCitadel/LichKing/Encounter.lua
 Encounters/IcecrownCitadel/LichKing/SoulReaper.lua
 Core/Planner.lua
