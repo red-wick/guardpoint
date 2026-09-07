@@ -1,7 +1,8 @@
 -- Guardpoint
 -- WoW 3.3.5a / 12340
 
-local ADDON = ...
+local ADDON, NS = ...
+NS = NS or {}
 local DB = GuardpointDB or {}
 GuardpointDB = DB
 
@@ -805,14 +806,14 @@ local function eventFrame()
 
     e:SetScript("OnEvent",function(self,event,...)
         if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then
-            if _G.Guardpoint and _G.Guardpoint.BloodDK then
-                SPELL = _G.Guardpoint.BloodDK.Spells or SPELL
-                ITEM = _G.Guardpoint.BloodDK.Items or ITEM
+            if NS.BloodDK then
+                SPELL = NS.BloodDK.Spells or SPELL
+                ITEM = NS.BloodDK.Items or ITEM
             end
             -- Encounter data is loaded as a separate module, but is only
             -- read after login.  The local values above remain safe fallbacks
             -- if the module is absent or incomplete.
-            local lk = _G.Guardpoint and _G.Guardpoint.LichKing
+            local lk = NS.LichKing
             if lk then
                 LichKingSoulReaper = lk.SoulReaper
                 REAPER_IDS = lk.ReaperIDs or REAPER_IDS
