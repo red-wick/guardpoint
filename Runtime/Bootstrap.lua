@@ -2,12 +2,9 @@
 local NS = _G.Guardpoint or {}
 _G.Guardpoint = NS
 
--- Guardpoint.lua still owns the legacy frame while we migrate by subsystem.
--- Hide its UI before the modular UI creates its own frame.
-if _G.GP_Main then
-    _G.GP_Main:Hide()
-end
-
+-- During migration the legacy file creates GP_Main/GP_Events.
+-- Keep the legacy UI visible until the modular runtime proves that its
+-- own frame is alive. The modular runtime owns events only.
 if NS.Runtime and NS.Runtime.initialize then
     NS.Runtime.initialize()
 end
