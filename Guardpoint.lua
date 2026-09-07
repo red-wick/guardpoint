@@ -267,13 +267,21 @@ local function chooseTrinket(deadline,exclude)
     if a and not has(exclude,a) and readyBy(a,deadline) then return a end
 end
 
+local function soulReaperStrategy(phase,n)
+    local sr=_G.GuardpointLichKing and _G.GuardpointLichKing.SoulReaper
+    if sr and sr.GetStrategy then
+        return sr.GetStrategy(phase,n)
+    end
+end
+
 local function buildPlan(phase,n,deadline)
     local before={}
     local after={}
     local pair=nil
+    local strategy=soulReaperStrategy(phase,n)
 
     if phase==2 then
-        if n==1 or n==3 or n==5 or n==7 then
+        if strategy=="core_pair" or (not strategy and (n==1 or n==3 or n==5 or n==7)) then
             pair=chooseCorePair(deadline)
             for i=1,#pair do add(before,pair[i]) end
             while #before<2 do
@@ -282,20 +290,20 @@ local function buildPlan(phase,n,deadline)
                 add(before,a)
             end
             add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif n==2 or n==6 then
+        elseif strategy=="ibf_solo" or (not strategy and (n==2 or n==6)) then
             local solo=chooseSolo(SPELL.IBF,deadline,before)
             add(before,solo)
             add(after,solo)
-        elseif n==4 then
+        elseif strategy=="remaining_core_trinket" or (not strategy and n==4) then
             add(before,chooseRemainingCore(deadline))
             add(before,chooseTrinket(deadline,before))
             add(after,chooseSolo(SPELL.ARMY,deadline,before))
-        elseif n==8 then
+        elseif strategy=="remaining_core_pain" or (not strategy and n==8) then
             add(before,chooseRemainingCore(deadline))
             add(after,chooseSolo(SPELL.PAIN,deadline,before))
         end
     elseif phase==3 then
-        if n==1 then
+        if strategy=="core_pair_ibf" or (not strategy and n==1) then
             pair=chooseCorePair(deadline)
             for i=1,#pair do add(before,pair[i]) end
             while #before<2 do
@@ -304,11 +312,11 @@ local function buildPlan(phase,n,deadline)
                 add(before,a)
             end
             add(after,chooseSolo(SPELL.IBF,deadline,before))
-        elseif n==2 then
+        elseif strategy=="remaining_core_trinket" or (not strategy and n==2) then
             add(before,chooseRemainingCore(deadline))
             add(before,chooseTrinket(deadline,before))
             add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif n==3 or n==5 or n==8 then
+        elseif strategy=="core_pair" or (not strategy and (n==3 or n==5 or n==8)) then
             pair=chooseCorePair(deadline)
             for i=1,#pair do add(before,pair[i]) end
             while #before<2 do
@@ -317,11 +325,11 @@ local function buildPlan(phase,n,deadline)
                 add(before,a)
             end
             add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif n==4 or n==7 then
+        elseif strategy=="ibf_solo" or (not strategy and (n==4 or n==7)) then
             local solo=chooseSolo(SPELL.IBF,deadline,before)
             add(before,solo)
             add(after,solo)
-        elseif n==6 then
+        elseif strategy=="remaining_core_pain" or (not strategy and n==6) then
             add(before,chooseRemainingCore(deadline))
             add(after,chooseSolo(SPELL.PAIN,deadline,before))
         end
