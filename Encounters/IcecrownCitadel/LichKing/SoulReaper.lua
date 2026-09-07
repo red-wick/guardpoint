@@ -1,4 +1,3 @@
--- Guardpoint Lich King / Soul Reaper encounter data
 local NS = _G.Guardpoint or {}
 _G.Guardpoint = NS
 
@@ -29,8 +28,14 @@ local SoulReaper = {
     },
 
     ValidActions = {
-        core = true, remaining_core = true, trinket = true, ibf = true,
-        ams = true, army = true, pain = true, sac = true,
+        core = true,
+        remaining_core = true,
+        trinket = true,
+        ibf = true,
+        ams = true,
+        army = true,
+        pain = true,
+        sac = true,
     },
 }
 
@@ -59,15 +64,22 @@ end
 
 local function validActionList(list)
     if type(list) ~= "table" or #list == 0 then return false end
-    for i=1,#list do if not SoulReaper.IsActionValid(list[i]) then return false end end
+    for i = 1, #list do
+        if not SoulReaper.IsActionValid(list[i]) then return false end
+    end
     return true
 end
 
 function SoulReaper.GetActions(phase, number)
     if not SoulReaper.IsValid(phase, number) then return nil end
-    local plan=planData(phase)[number]
+    local plan = planData(phase)[number]
+    if not plan then return nil end
     if not validActionList(plan.before) or not validActionList(plan.after) then return nil end
-    return {before=plan.before,after=plan.after}
+
+    return {
+        before = plan.before,
+        after = plan.after,
+    }
 end
 
 function SoulReaper.GetStrategy(phase, number)
@@ -77,20 +89,38 @@ end
 
 function SoulReaper.GetPlan(phase, number)
     if not SoulReaper.IsValid(phase, number) then return nil end
-    local plan=planData(phase)[number];local actions=SoulReaper.GetActions(phase,number)
+    local plan = planData(phase)[number]
+    local actions = SoulReaper.GetActions(phase, number)
     if not plan or not actions then return nil end
-    local planType,extra,close=strategyMeta(plan.strategy)
+
+    local planType, extra, close = strategyMeta(plan.strategy)
     if not planType or not close then return nil end
-    return {phase=phase,number=number,strategy=plan.strategy,actions=actions,beforeActions=actions.before,afterActions=actions.after,type=planType,extra=extra,close=close}
+
+    return {
+        phase = phase,
+        number = number,
+        strategy = plan.strategy,
+        actions = actions,
+        beforeActions = actions.before,
+        afterActions = actions.after,
+        type = planType,
+        extra = extra,
+        close = close,
+    }
 end
 
 function SoulReaper.GetPhaseCount(phase)
-    local plans=planData(phase);if not plans then return 0 end
-    local count=0
-    for i=1,SoulReaper.MaxReapers do if plans[i] then count=i else break end end
+    local plans = planData(phase)
+    if not plans then return 0 end
+    local count = 0
+    for i = 1, SoulReaper.MaxReapers do
+        if plans[i] then count = i else break end
+    end
     return count
 end
 
 NS.LichKingSoulReaper = SoulReaper
-if NS.LichKing then NS.LichKing.SoulReaper = SoulReaper end
-if _G.GuardpointLichKing then _G.GuardpointLichKing.SoulReaper = SoulReaper end
+
+if _G.GuardpointLichKing then
+    _G.GuardpointLichKing.SoulReaper = SoulReaper
+end
