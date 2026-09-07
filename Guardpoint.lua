@@ -629,9 +629,9 @@ local function scheduleNext()
     state.nextAt=tnow()+delay
 end
 
-local function saveCorePair(pair)
-    if not pair then return end
-    if (state.phase==2 and state.reaper==3) or (state.phase==3 and state.reaper==1) then
+local function saveCorePair(pair,number)
+    if not pair or not number then return end
+    if (state.phase==2 and number==3) or (state.phase==3 and number==1) then
         state.corePair={}
         for i=1,#pair do state.corePair[#state.corePair+1]=copy(pair[i]) end
     end
@@ -650,7 +650,7 @@ local function startReaper(expiration,isTest)
         state.used={}
         local b,a,pair=buildPlan(state.phase,state.reaper,state.expire)
         state.plan={before=b,after=a}
-        saveCorePair(pair)
+        saveCorePair(pair,state.reaper)
     end
     scheduleNext()
     render()
@@ -836,10 +836,10 @@ local function eventFrame()
             if state.nextAt then
                 local left=state.nextAt-t
                 if left<=PREWARN and left>0 then
-                    if not state.plan then local b,a=buildPlan(state.phase,state.nextNumber,state.nextAt); state.plan={before=b,after=a} end
+                    if not state.plan then local b,a,pair=buildPlan(state.phase,state.nextNumber,state.nextAt); state.plan={before=b,after=a}; saveCorePair(pair,state.nextNumber) end
                     render()
                 elseif left<=0 then
-                    if not state.plan then local b,a=buildPlan(state.phase,state.nextNumber,t); state.plan={before=b,after=a} end
+                    if not state.plan then local b,a,pair=buildPlan(state.phase,state.nextNumber,t); state.plan={before=b,after=a}; saveCorePair(pair,state.nextNumber) end
                     render()
                 else
                     UI.frame:Hide()
@@ -860,7 +860,7 @@ SlashCmdList["GUARDPOINT"]=function(msg)
         state.test=true; state.encounter=false; state.active=true; state.phase=2; state.reaper=state.reaper+1
         if state.reaper>8 then state.reaper=1 end
         state.expire=tnow()+REAPER_DURATION; state.nextAt=nil; state.used={}
-        local b,a,pair=buildPlan(state.phase,state.reaper,state.expire); state.plan={before=b,after=a}; saveCorePair(pair); render()
+        local b,a,pair=buildPlan(state.phase,state.reaper,state.expire); state.plan={before=b,after=a}; saveCorePair(pair,state.reaper); render()
         DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r test: P"..state.phase.." Жнец #"..state.reaper)
     elseif msg=="pre" then
         state.test=false; state.active=false; state.reaper=0; state.nextNumber=1; state.nextAt=tnow()+PREWARN; state.plan=nil; UI.frame:Hide()
