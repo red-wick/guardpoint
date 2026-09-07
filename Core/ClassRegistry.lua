@@ -64,3 +64,7 @@ function R:Detect()
     self.Active = nil
     return nil
 end
+
+function R:Resolve()
+    return self:GetActive() or self:Detect()
+end
