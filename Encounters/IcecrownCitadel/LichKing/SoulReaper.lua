@@ -37,7 +37,6 @@ local SoulReaper = {
             [7] = { type = "pair", close = "ams" },
             [8] = { type = "remaining", close = "pain" },
         },
-
         Phase3 = {
             [1] = { type = "pair", close = "ibf" },
             [2] = { type = "remaining", extra = "trinket", close = "ams" },
@@ -50,7 +49,6 @@ local SoulReaper = {
         },
     },
 
-    -- Canonical action names. Runtime class files resolve these to actual spell/item IDs.
     Actions = {
         core_pair = { before = { "core", "core" }, after = { "ams" } },
         core_pair_ibf = { before = { "core", "core" }, after = { "ibf" } },
@@ -69,6 +67,29 @@ local SoulReaper = {
         pain = true,
         sac = true,
     },
+
+    Plans = {
+        Phase2 = {
+            [1] = { type = "pair", close = "ams", before = { "core", "core" }, after = { "ams" } },
+            [2] = { type = "solo", close = "ibf", before = { "ibf" }, after = { "ibf" } },
+            [3] = { type = "pair", close = "ams", before = { "core", "core" }, after = { "ams" } },
+            [4] = { type = "remaining", extra = "trinket", close = "army", before = { "remaining_core", "trinket" }, after = { "army" } },
+            [5] = { type = "pair", close = "ams", before = { "core", "core" }, after = { "ams" } },
+            [6] = { type = "solo", close = "ibf", before = { "ibf" }, after = { "ibf" } },
+            [7] = { type = "pair", close = "ams", before = { "core", "core" }, after = { "ams" } },
+            [8] = { type = "remaining", close = "pain", before = { "remaining_core" }, after = { "pain" } },
+        },
+        Phase3 = {
+            [1] = { type = "pair", close = "ibf", before = { "core", "core" }, after = { "ibf" } },
+            [2] = { type = "remaining", extra = "trinket", close = "ams", before = { "remaining_core", "trinket" }, after = { "ams" } },
+            [3] = { type = "pair", close = "ams", before = { "core", "core" }, after = { "ams" } },
+            [4] = { type = "solo", close = "ibf", before = { "ibf" }, after = { "ibf" } },
+            [5] = { type = "pair", close = "ams", before = { "core", "core" }, after = { "ams" } },
+            [6] = { type = "remaining", close = "pain", before = { "remaining_core" }, after = { "pain" } },
+            [7] = { type = "solo", close = "ibf", before = { "ibf" }, after = { "ibf" } },
+            [8] = { type = "pair", close = "ams", before = { "core", "core" }, after = { "ams" } },
+        },
+    },
 }
 
 local function phaseData(phase)
@@ -76,12 +97,15 @@ local function phaseData(phase)
     if phase == 3 then return SoulReaper.Phase3, SoulReaper.Details.Phase3 end
 end
 
+local function planData(phase)
+    if phase == 2 then return SoulReaper.Plans.Phase2 end
+    if phase == 3 then return SoulReaper.Plans.Phase3 end
+end
+
 function SoulReaper.IsValid(phase, number)
-    if type(number) ~= "number" or number < 1 or number > SoulReaper.MaxReapers then
-        return false
-    end
-    local strategies = phaseData(phase)
-    return strategies and strategies[number] ~= nil or false
+    if type(number) ~= "number" or number < 1 or number > SoulReaper.MaxReapers then return false end
+    local plans = planData(phase)
+    return plans and plans[number] ~= nil or false
 end
 
 function SoulReaper.GetStrategy(phase, number)
@@ -102,7 +126,6 @@ function SoulReaper.GetActions(phase, number)
     local strategy = SoulReaper.GetStrategy(phase, number)
     local actions = strategy and SoulReaper.Actions[strategy]
     if not actions then return nil end
-
     for _, list in pairs(actions) do
         for i = 1, #list do
             if not SoulReaper.IsActionValid(list[i]) then return nil end
@@ -113,31 +136,29 @@ end
 
 function SoulReaper.GetPlan(phase, number)
     if not SoulReaper.IsValid(phase, number) then return nil end
-
+    local canonical = planData(phase)[number]
+    if not canonical or not canonical.before or not canonical.after then return nil end
     local details = SoulReaper.GetDetails(phase, number)
-    local actions = SoulReaper.GetActions(phase, number)
-    if not actions or not actions.before or not actions.after then return nil end
-
+    local strategy = SoulReaper.GetStrategy(phase, number)
     return {
         phase = phase,
         number = number,
-        strategy = SoulReaper.GetStrategy(phase, number),
-        actions = actions,
-        beforeActions = actions.before,
-        afterActions = actions.after,
-        type = details and details.type or nil,
-        extra = details and details.extra or nil,
-        close = details and details.close or nil,
+        strategy = strategy,
+        actions = { before = canonical.before, after = canonical.after },
+        beforeActions = canonical.before,
+        afterActions = canonical.after,
+        type = canonical.type or (details and details.type) or nil,
+        extra = canonical.extra or (details and details.extra) or nil,
+        close = canonical.close or (details and details.close) or nil,
     }
 end
 
 function SoulReaper.GetPhaseCount(phase)
-    local strategies = phaseData(phase)
-    if not strategies then return 0 end
-
+    local plans = planData(phase)
+    if not plans then return 0 end
     local count = 0
     for i = 1, SoulReaper.MaxReapers do
-        if strategies[i] then count = i else break end
+        if plans[i] then count = i else break end
     end
     return count
 end
