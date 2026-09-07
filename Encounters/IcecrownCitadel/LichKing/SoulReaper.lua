@@ -48,6 +48,7 @@ local SoulReaper = {
             [7] = { type = "solo", close = "ibf" },
             [8] = { type = "pair", close = "ams" },
         },
+    },
 
     -- Canonical action names. Runtime class files resolve these to actual spell/item IDs.
     Actions = {
