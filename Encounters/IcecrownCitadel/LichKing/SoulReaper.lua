@@ -8,7 +8,7 @@ local SoulReaper = {
         Phase2 = {
             [1] = { strategy = "core_pair", before = { "core", "core" }, after = { "ams" } },
             [2] = { strategy = "ibf_solo", before = { "ibf" }, after = { "ibf" } },
-            [3] = { strategy = "core_pair", before = { "core", "core" }, after = { "ams" } },
+            [3] = { strategy = "core_pair", saveCorePair = true, before = { "core", "core" }, after = { "ams" } },
             [4] = { strategy = "remaining_core_trinket", before = { "remaining_core", "trinket" }, after = { "army" } },
             [5] = { strategy = "core_pair", before = { "core", "core" }, after = { "ams" } },
             [6] = { strategy = "ibf_solo", before = { "ibf" }, after = { "ibf" } },
@@ -16,7 +16,7 @@ local SoulReaper = {
             [8] = { strategy = "remaining_core_pain", before = { "remaining_core" }, after = { "pain" } },
         },
         Phase3 = {
-            [1] = { strategy = "core_pair_ibf", before = { "core", "core" }, after = { "ibf" } },
+            [1] = { strategy = "core_pair_ibf", saveCorePair = true, before = { "core", "core" }, after = { "ibf" } },
             [2] = { strategy = "remaining_core_trinket", before = { "remaining_core", "trinket" }, after = { "ams" } },
             [3] = { strategy = "core_pair", before = { "core", "core" }, after = { "ams" } },
             [4] = { strategy = "ibf_solo", before = { "ibf" }, after = { "ibf" } },
@@ -91,6 +91,11 @@ function SoulReaper.GetStrategy(phase, number)
     return planData(phase)[number].strategy
 end
 
+function SoulReaper.ShouldSaveCorePair(phase, number)
+    if not SoulReaper.IsValid(phase, number) then return false end
+    return planData(phase)[number].saveCorePair == true
+end
+
 function SoulReaper.GetPlan(phase, number)
     if not SoulReaper.IsValid(phase, number) then return nil end
     local plan = planData(phase)[number]
@@ -110,6 +115,7 @@ function SoulReaper.GetPlan(phase, number)
         type = planType,
         extra = extra,
         close = close,
+        saveCorePair = plan.saveCorePair == true,
     }
 end
 
