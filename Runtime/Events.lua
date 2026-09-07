@@ -7,9 +7,7 @@ local LK=ER and (ER:GetActive() or ER:Detect()) or NS.LichKing
 local P2_FIRST=LK and LK.Timing.P2First or 32.0; local P3_FIRST=LK and LK.Timing.P3First or 37.5; local NEXT_REAPER=LK and LK.Timing.NextReaper or 34.0; local REAPER_DURATION=LK and LK.Timing.ReaperDuration or 5.1; local PREWARN=LK and LK.Timing.Prewarn or 8.0
 local function resolveEncounter()
     if ER then
-        local encounter=ER:GetActive()
-        if encounter then return encounter end
-        encounter=ER:Detect()
+        local encounter=ER:Resolve()
         if encounter then return encounter end
     end
     return NS.LichKing
