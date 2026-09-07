@@ -13,6 +13,7 @@ ns.BloodDK = {
         PainSuppression = 33206,
         HandOfSacrifice = 6940,
 
+        -- Runtime aliases used by Guardpoint's action resolver.
         TAP = 45529,
         VB = 55233,
         AMS = 48707,
@@ -29,18 +30,11 @@ ns.BloodDK = {
         SatrinaHeroic = 47088,
         Key = 50356,
 
+        -- Runtime aliases used by Guardpoint's item resolver.
         FANG_N = 50361,
         FANG_H = 50364,
         SATRINA_N = 47080,
         SATRINA_H = 47088,
-    },
-
-    ActionSpells = {
-        ams = 48707,
-        ibf = 48792,
-        army = 42650,
-        pain = 33206,
-        sac = 6940,
     },
 }
 
