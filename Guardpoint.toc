@@ -19,4 +19,5 @@ UI/Main.lua
 Runtime/Events.lua
 Runtime/Commands.lua
 Guardpoint.lua
+Runtime/Bootstrap.lua
 arrow.tga
