@@ -6,7 +6,7 @@
 ## SavedVariables: GuardpointDB
 
 Encounters/IcecrownCitadel/LichKing/Encounter.lua
+Encounters/IcecrownCitadel/LichKing/SoulReaper.lua
 Classes/DeathKnight/Blood.lua
 Guardpoint.lua
 arrow.tga
-
