@@ -1,5 +1,7 @@
 -- Guardpoint UI
-local _, NS = ...
+local NS = _G.Guardpoint or {}
+_G.Guardpoint = NS
+
 local S = NS.State.data
 local U = NS.Util
 local R = NS.Resources
@@ -69,7 +71,7 @@ end
 
 local function updateButtonState()
     if not UI.frame or not UI.frame:IsShown() then return end
-    local f=UI.frame; local t=U.now(); local lead=(NS.LichKing.Timing and NS.LichKing.Timing.GlowLead) or 5.0
+    local f=UI.frame; local t=U.now(); local encounter=NS.EncounterRegistry and NS.EncounterRegistry:GetActive(); local timing=encounter and encounter.Timing; local lead=(timing and timing.GlowLead) or 5.0
     local preActive=(not S.active and S.nextAt and (S.nextAt-t)<=lead and (S.nextAt-t)>0); local postActive=S.active
     local function updateOne(b,side)
         local a=b.data
