@@ -70,7 +70,12 @@ function P.chooseTrinket(deadline,exclude)
     if a and not U.has(exclude,a) and R.readyBy(a,deadline) then return a end
 end
 function P.soulReaperPlan(phase,n)
-    local sr=NS.LichKingSoulReaper
+    local encounter
+    if NS.EncounterRegistry then
+        encounter=NS.EncounterRegistry:GetActive()
+    end
+    local sr=encounter and encounter.SoulReaper
+    if not sr then sr=NS.LichKingSoulReaper end
     if sr and sr.GetPlan then return sr.GetPlan(phase,n) end
 end
 function P.closeSpellID(name)
