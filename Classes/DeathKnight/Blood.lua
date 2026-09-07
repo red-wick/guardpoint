@@ -6,6 +6,10 @@ NS.BloodDK = NS.BloodDK or {
     Class = "DEATHKNIGHT",
     Spec = "BLOOD",
 
+    Features = {
+        FourT10 = true,
+    },
+
     Spells = {
         TAP = 45529,
         VB = 55233,
