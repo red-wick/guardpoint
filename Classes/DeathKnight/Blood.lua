@@ -8,6 +8,7 @@ NS.BloodDK = NS.BloodDK or {
 
     Features = {
         FourT10 = true,
+        FourT10Markers = {"плет", "scourgelord"},
     },
 
     Spells = {
