@@ -5,7 +5,8 @@
 ## Version: 1.0.2
 ## SavedVariables: GuardpointDB
 
-Guardpoint.lua
+Encounters/IcecrownCitadel/LichKing/Encounter.lua
 Classes/DeathKnight/Blood.lua
+Guardpoint.lua
 arrow.tga
 

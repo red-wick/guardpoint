@@ -7,6 +7,7 @@ GuardpointDB = DB
 
 local REAPER_IDS = { [69409]=true, [73797]=true, [73798]=true, [73799]=true }
 local QUAKE_ID = 72262
+local LK_BOSS_ID = 36597
 
 local P2_FIRST = 32.0
 local P3_FIRST = 37.5
@@ -787,7 +788,7 @@ local function creatureEntryFromGUID(guid)
 end
 
 local function isLKGUID(guid)
-    return creatureEntryFromGUID(guid)==36597
+    return creatureEntryFromGUID(guid)==LK_BOSS_ID
 end
 
 local function findLKUnit()
@@ -865,6 +866,24 @@ local function eventFrame()
             if _G.Guardpoint and _G.Guardpoint.BloodDK then
                 SPELL = _G.Guardpoint.BloodDK.Spells or SPELL
                 ITEM = _G.Guardpoint.BloodDK.Items or ITEM
+            end
+            -- Encounter data is loaded as a separate module, but is only
+            -- read after login.  The local values above remain safe fallbacks
+            -- if the module is absent or incomplete.
+            local lk = _G.Guardpoint and _G.Guardpoint.LichKing
+            if lk then
+                REAPER_IDS = lk.ReaperIDs or REAPER_IDS
+                QUAKE_ID = lk.QuakeID or QUAKE_ID
+                LK_BOSS_ID = lk.BossID or LK_BOSS_ID
+                local timing = lk.Timing
+                if timing then
+                    P2_FIRST = timing.P2First or P2_FIRST
+                    P3_FIRST = timing.P3First or P3_FIRST
+                    NEXT_REAPER = timing.NextReaper or NEXT_REAPER
+                    REAPER_DURATION = timing.ReaperDuration or REAPER_DURATION
+                    PREWARN = timing.Prewarn or PREWARN
+                    GLOW_LEAD = timing.GlowLead or GLOW_LEAD
+                end
             end
             stopEncounter()
             return
