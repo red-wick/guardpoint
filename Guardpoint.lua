@@ -267,18 +267,67 @@ local function chooseTrinket(deadline,exclude)
     if a and not has(exclude,a) and readyBy(a,deadline) then return a end
 end
 
-local function soulReaperStrategy(phase,n)
+local function soulReaperPlan(phase,n)
     local sr=_G.GuardpointLichKing and _G.GuardpointLichKing.SoulReaper
-    if sr and sr.GetStrategy then
-        return sr.GetStrategy(phase,n)
+    if sr and sr.GetPlan then
+        return sr.GetPlan(phase,n)
     end
 end
 
-local function buildPlan(phase,n,deadline)
+local function closeSpellID(name)
+    if name=="ams" then return SPELL.AMS end
+    if name=="ibf" then return SPELL.IBF end
+    if name=="army" then return SPELL.ARMY end
+    if name=="pain" then return SPELL.PAIN end
+    if name=="sac" then return SPELL.SAC end
+end
+
+local function buildDataPlan(plan,deadline)
+    if not plan or not plan.type or not plan.close then return nil end
+
     local before={}
     local after={}
     local pair=nil
-    local strategy=soulReaperStrategy(phase,n)
+
+    if plan.type=="pair" then
+        pair=chooseCorePair(deadline)
+        for i=1,#pair do add(before,pair[i]) end
+        while #before<2 do
+            local a=choosePreFallback(deadline,before)
+            if not a then break end
+            add(before,a)
+        end
+    elseif plan.type=="solo" then
+        local closeID=closeSpellID(plan.close)
+        if not closeID then return nil end
+        local solo=chooseSolo(closeID,deadline,before)
+        add(before,solo)
+        add(after,solo)
+        return before,after,pair
+    elseif plan.type=="remaining" then
+        add(before,chooseRemainingCore(deadline))
+        if plan.extra=="trinket" then add(before,chooseTrinket(deadline,before)) end
+    else
+        return nil
+    end
+
+    local closeID=closeSpellID(plan.close)
+    if not closeID then return nil end
+    add(after,chooseSolo(closeID,deadline,before))
+    return before,after,pair
+end
+
+local function buildPlan(phase,n,deadline)
+    local dataPlan=soulReaperPlan(phase,n)
+    if dataPlan then
+        local before,after,pair=buildDataPlan(dataPlan,deadline)
+        if before and after then return before,after,pair end
+    end
+
+    local before={}
+    local after={}
+    local pair=nil
+    local strategy=dataPlan and dataPlan.strategy or nil
 
     if phase==2 then
         if strategy=="core_pair" or (not strategy and (n==1 or n==3 or n==5 or n==7)) then
