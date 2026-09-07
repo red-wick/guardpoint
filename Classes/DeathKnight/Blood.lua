@@ -35,6 +35,16 @@ NS.BloodDK = NS.BloodDK or {
         satrina = {Items = {47080, 47088}},
         key = {Items = {50356}},
     },
+
+    Planner = {
+        Core = {
+            Trinkets = {"fang"},
+            Spells = {"TAP", "VB"},
+            FourT10Spells = {"TAP"},
+        },
+        PreFallback = {"PAIN", "SAC"},
+        SoloPriority = {"IBF", "AMS", "ARMY", "PAIN", "SAC"},
+    },
 }
 
 if NS.ClassRegistry then
