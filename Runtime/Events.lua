@@ -29,8 +29,12 @@ local function bossStillPresent() if LK and LK.IsUnitPresent(S.encounterGUID) th
 function X.phaseReset(p) phaseReset(p) end
 function X.initialize()
     if X.frame then return end
+    if NS.Class and NS.Class.refresh then NS.Class.refresh() end
+    if R.refresh then R.refresh() end
     UI.create();local e=CreateFrame("Frame","GP_Events",UIParent);X.frame=e
-    e:RegisterEvent("PLAYER_LOGIN");e:RegisterEvent("PLAYER_ENTERING_WORLD");e:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");e:RegisterEvent("UNIT_AURA");e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");e:RegisterEvent("PLAYER_UNGHOST");e:RegisterEvent("PLAYER_REGEN_ENABLED");e:RegisterEvent("UNIT_TARGET");e:RegisterEvent("PLAYER_TARGET_CHANGED");hookItemUse()
+    e:RegisterEvent("PLAYER_LOGIN");e:RegisterEvent("PLAYER_ENTERING_WORLD");e:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");e:RegisterEvent("UNIT_AURA");e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");e:RegisterEvent("PLAYER_UNGHOST");e:RegisterEvent("PLAYER_REGEN_ENABLED");e:RegisterEvent("UNIT_TARGET");e:RegisterEvent("PLAYER_TARGET_CHANGED")
+    -- Item hooks are optional; never let them prevent the core event handler from starting.
+    pcall(hookItemUse)
     e:SetScript("OnEvent",function(self,event,...)
         if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then if NS.Class and NS.Class.refresh then NS.Class.refresh() end;R.refresh();stopEncounter();return end
         if event=="PLAYER_UNGHOST" then stopEncounter();return end
