@@ -1,5 +1,7 @@
 -- Guardpoint runtime / encounter events
-local _, NS = ...
+local NS = _G.Guardpoint or {}
+_G.Guardpoint = NS
+
 local S=NS.State.data; local U=NS.Util; local R=NS.Resources; local P=NS.Planner; local UI=NS.UI
 NS.Runtime=NS.Runtime or {}; local X=NS.Runtime
 local ER=NS.EncounterRegistry
