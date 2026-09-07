@@ -29,6 +29,10 @@ NS.BloodDK = NS.BloodDK or {
         SATRINA_H = 47088,
         KEY = 50356,
     },
+
+    Trinkets = {
+        fang = {Names = {"синдрагос", "sindragosa"}},
+    },
 }
 
 if NS.ClassRegistry then
