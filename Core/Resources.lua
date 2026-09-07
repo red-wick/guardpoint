@@ -1,23 +1,20 @@
 -- Guardpoint player resources
 local NS = _G.Guardpoint or {}
 _G.Guardpoint = NS
-
 local S = NS.State and NS.State.data
 local U = NS.Util
 
 NS.Resources = NS.Resources or {}
 local R = NS.Resources
-R.SPELL = R.SPELL or {}
-R.ITEM = R.ITEM or {}
 
-function R.Configure(classModule)
-    classModule = classModule or {}
-    R.SPELL = classModule.Spells or {}
-    R.ITEM = classModule.Items or {}
-    R.Class = classModule
-end
+R.SPELL = {
+    TAP=45529, VB=55233, AMS=48707, IBF=48792, ARMY=42650, PAIN=33206, SAC=6940,
+}
+R.ITEM = {
+    FANG_N=50361, FANG_H=50364, SATRINA_N=47080, SATRINA_H=47088, KEY=50356,
+}
 
-function R.spellExists(id) return id and GetSpellInfo(id) ~= nil end
+function R.spellExists(id) return GetSpellInfo(id) ~= nil end
 function R.spellIcon(id)
     local _,_,tex=GetSpellInfo(id)
     return tex or "Interface\\Icons\\INV_Misc_QuestionMark"
@@ -69,7 +66,7 @@ function R.trinket(kind)
     return {kind="item",key=kind,id=R.itemID(slot),slot=slot}
 end
 function R.fourT10()
-    if S and S.t10Override ~= nil then return S.t10Override end
+    if S.t10Override ~= nil then return S.t10Override end
     if not R.tip then
         R.tip=CreateFrame("GameTooltip","GP_T10Scan",UIParent,"GameTooltipTemplate")
         R.tip:SetOwner(UIParent,"ANCHOR_NONE")
@@ -100,7 +97,8 @@ function R.spellA(id,key)
     return {kind="spell",id=id,key=key}
 end
 function R.readyBy(a,deadline)
-    if not a or (U.isUsed and U.isUsed(a)) then return false end
-    local c=a.kind=="item" and R.itemCD(a.slot) or R.spellCD(a.id)
+    if not a or U.isUsed(a) then return false end
+    local c
+    if a.kind=="item" then c=R.itemCD(a.slot) else c=R.spellCD(a.id) end
     return c <= math.max(0,deadline-U.now()) + 0.10
 end
