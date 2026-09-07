@@ -62,6 +62,24 @@ function LichKing.GetSoulReaperPlan(phase, number)
     end
 end
 
+function LichKing.GetReaperDelay(phase, reaper)
+    local timing = LichKing.Timing
+    if not timing then return nil end
+    if reaper == 0 then
+        if phase == 3 then return timing.P3First end
+        return timing.P2First
+    end
+    return timing.NextReaper
+end
+
+function LichKing.GetReaperDuration()
+    return LichKing.Timing and LichKing.Timing.ReaperDuration
+end
+
+function LichKing.GetReaperPrewarn()
+    return LichKing.Timing and LichKing.Timing.Prewarn
+end
+
 function LichKing.FindUnit()
     local units={"boss1","boss2","boss3","boss4","target","focus","mouseover"}
     for i=1,#units do
