@@ -92,9 +92,17 @@ function R.fourT10()
     if not R.Class or not R.Class.Features or not R.Class.Features.FourT10 then
         return false
     end
+    local markers = R.Class.Features.FourT10Markers
+    if not markers or #markers == 0 then return false end
     if not R.tip then
         R.tip=CreateFrame("GameTooltip","GP_T10Scan",UIParent,"GameTooltipTemplate")
         R.tip:SetOwner(UIParent,"ANCHOR_NONE")
+    end
+    local function hasMarker(text)
+        for _,marker in ipairs(markers) do
+            if string.find(text,U.lower(marker),1,true) then return true end
+        end
+        return false
     end
     local count=0
     for _,slot in ipairs({1,3,5,7,10}) do
@@ -102,14 +110,14 @@ function R.fourT10()
         if id then
             local found=false
             local n=U.lower(R.itemName(slot))
-            if string.find(n,"плет",1,true) or string.find(n,"scourgelord",1,true) then
+            if hasMarker(n) then
                 found=true
             else
                 R.tip:ClearLines(); R.tip:SetInventoryItem("player",slot)
                 for line=1,R.tip:NumLines() do
                     local obj=_G["GP_T10ScanTextLeft"..line]
                     local txt=obj and U.lower(obj:GetText()) or ""
-                    if string.find(txt,"плет",1,true) or string.find(txt,"scourgelord",1,true) then found=true; break end
+                    if hasMarker(txt) then found=true; break end
                 end
             end
             if found then count=count+1 end
