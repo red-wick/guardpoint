@@ -1,10 +1,9 @@
--- Guardpoint Blood DK class module
+-- Guardpoint Blood DK resources
 local NS = _G.Guardpoint or {}
 _G.Guardpoint = NS
 
 NS.BloodDK = NS.BloodDK or {
     Class = "DEATHKNIGHT",
-    Spec = "BLOOD",
 
     Spells = {
         TAP = 45529,
@@ -24,7 +23,3 @@ NS.BloodDK = NS.BloodDK or {
         KEY = 50356,
     },
 }
-
-if NS.ClassRegistry then
-    NS.ClassRegistry:Register(NS.BloodDK.Class, NS.BloodDK.Spec, NS.BloodDK)
-end
