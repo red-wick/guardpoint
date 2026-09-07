@@ -1,6 +1,7 @@
 -- Guardpoint utility functions
-local _, NS = ...
-local S = NS.State.data
+local NS = _G.Guardpoint or {}
+_G.Guardpoint = NS
+local S = NS.State and NS.State.data
 
 NS.Util = NS.Util or {}
 local U = NS.Util
@@ -24,4 +25,4 @@ end
 function U.add(list,a)
     if a and not U.has(list,a) then list[#list+1]=U.copy(a) end
 end
-function U.isUsed(a) return a and S.used[U.key(a)] end
+function U.isUsed(a) return a and S and S.used and S.used[U.key(a)] end
