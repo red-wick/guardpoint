@@ -16,6 +16,7 @@ local NEXT_REAPER = LichKingEncounter and LichKingEncounter.Timing.NextReaper or
 local REAPER_DURATION = LichKingEncounter and LichKingEncounter.Timing.ReaperDuration or 5.1
 local PREWARN = LichKingEncounter and LichKingEncounter.Timing.Prewarn or 8.0
 local GLOW_LEAD = LichKingEncounter and LichKingEncounter.Timing.GlowLead or 5.0
+local SOUL_REAPER = LichKingEncounter and LichKingEncounter.SoulReaper
 
 local BloodDK = _G.Guardpoint and _G.Guardpoint.BloodDK
 local SPELL = BloodDK and BloodDK.Spells or {
@@ -271,60 +272,32 @@ local function buildPlan(phase,n,deadline)
     local before={}
     local after={}
     local pair=nil
+    local strategy=SOUL_REAPER and SOUL_REAPER[phase==2 and "Phase2" or "Phase3"] and SOUL_REAPER[phase==2 and "Phase2" or "Phase3"][n]
 
-    if phase==2 then
-        if n==1 or n==3 or n==5 or n==7 then
-            pair=chooseCorePair(deadline)
-            for i=1,#pair do add(before,pair[i]) end
-            while #before<2 do
-                local a=choosePreFallback(deadline,before)
-                if not a then break end
-                add(before,a)
-            end
-            add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif n==2 or n==6 then
-            local solo=chooseSolo(SPELL.IBF,deadline,before)
-            add(before,solo)
-            add(after,solo)
-        elseif n==4 then
-            add(before,chooseRemainingCore(deadline))
-            add(before,chooseTrinket(deadline,before))
-            add(after,chooseSolo(SPELL.ARMY,deadline,before))
-        elseif n==8 then
-            add(before,chooseRemainingCore(deadline))
-            add(after,chooseSolo(SPELL.PAIN,deadline,before))
+    if strategy=="core_pair" or strategy=="core_pair_ibf" then
+        pair=chooseCorePair(deadline)
+        for i=1,#pair do add(before,pair[i]) end
+        while #before<2 do
+            local a=choosePreFallback(deadline,before)
+            if not a then break end
+            add(before,a)
         end
-    elseif phase==3 then
-        if n==1 then
-            pair=chooseCorePair(deadline)
-            for i=1,#pair do add(before,pair[i]) end
-            while #before<2 do
-                local a=choosePreFallback(deadline,before)
-                if not a then break end
-                add(before,a)
-            end
+        if strategy=="core_pair_ibf" then
             add(after,chooseSolo(SPELL.IBF,deadline,before))
-        elseif n==2 then
-            add(before,chooseRemainingCore(deadline))
-            add(before,chooseTrinket(deadline,before))
+        else
             add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif n==3 or n==5 or n==8 then
-            pair=chooseCorePair(deadline)
-            for i=1,#pair do add(before,pair[i]) end
-            while #before<2 do
-                local a=choosePreFallback(deadline,before)
-                if not a then break end
-                add(before,a)
-            end
-            add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif n==4 or n==7 then
-            local solo=chooseSolo(SPELL.IBF,deadline,before)
-            add(before,solo)
-            add(after,solo)
-        elseif n==6 then
-            add(before,chooseRemainingCore(deadline))
-            add(after,chooseSolo(SPELL.PAIN,deadline,before))
         end
+    elseif strategy=="ibf_solo" then
+        local solo=chooseSolo(SPELL.IBF,deadline,before)
+        add(before,solo)
+        add(after,solo)
+    elseif strategy=="remaining_core_trinket" then
+        add(before,chooseRemainingCore(deadline))
+        add(before,chooseTrinket(deadline,before))
+        add(after,chooseSolo(SPELL.AMS,deadline,before))
+    elseif strategy=="remaining_core_pain" then
+        add(before,chooseRemainingCore(deadline))
+        add(after,chooseSolo(SPELL.PAIN,deadline,before))
     end
 
     return before,after,pair
@@ -699,6 +672,7 @@ local function eventFrame()
                     REAPER_DURATION=timing.ReaperDuration or REAPER_DURATION; PREWARN=timing.Prewarn or PREWARN; GLOW_LEAD=timing.GlowLead or GLOW_LEAD
                 end
             end
+            SOUL_REAPER=_G.GuardpointLichKing and _G.GuardpointLichKing.SoulReaper or SOUL_REAPER
             stopEncounter(); return
         end
 
