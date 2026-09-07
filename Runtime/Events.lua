@@ -27,8 +27,15 @@ function X.ConfigureEncounter()
     return encounter
 end
 local function scheduleNext()
+    local encounter=resolveEncounter()
     local timing=X.Timing or {}
-    local delay;if S.reaper==0 then delay=(S.phase==3 and (timing.P3First or 37.5) or (timing.P2First or 32.0)) else delay=timing.NextReaper or 34.0 end
+    local delay
+    if encounter and encounter.GetReaperDelay then
+        delay=encounter.GetReaperDelay(S.phase,S.reaper)
+    end
+    if not delay then
+        if S.reaper==0 then delay=(S.phase==3 and (timing.P3First or 37.5) or (timing.P2First or 32.0)) else delay=timing.NextReaper or 34.0 end
+    end
     S.nextNumber=S.reaper+1;if S.nextNumber>8 then S.nextNumber=1 end;S.nextAt=U.now()+delay
 end
 local function saveCorePair(pair,number)
