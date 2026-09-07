@@ -51,6 +51,10 @@ function LichKing.IsQuakeSpell(spellID)
     return spellID and spellID == LichKing.QuakeID
 end
 
+function LichKing.GetSoulReaper()
+    return LichKing.SoulReaper
+end
+
 function LichKing.FindUnit()
     local units={"boss1","boss2","boss3","boss4","target","focus","mouseover"}
     for i=1,#units do
