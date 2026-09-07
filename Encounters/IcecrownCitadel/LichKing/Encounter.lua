@@ -1,9 +1,7 @@
--- Guardpoint Lich King encounter module
-local NS = _G.Guardpoint or {}
-_G.Guardpoint = NS
+local _, NS = ...
+NS = NS or {}
 
-local LichKing = NS.LichKing or {
-    Id = "IcecrownCitadel/LichKing",
+local LichKing = {
     BossID = 36597,
     MapID = 631,
 
@@ -25,9 +23,6 @@ local LichKing = NS.LichKing or {
         GlowLead = 5.0,
     },
 }
-
-NS.LichKing = LichKing
-_G.GuardpointLichKing = LichKing
 
 function LichKing.CreatureEntryFromGUID(guid)
     if not guid then return nil end
@@ -77,6 +72,5 @@ function LichKing.ScanSoulReaper()
     end
 end
 
-if NS.EncounterRegistry then
-    NS.EncounterRegistry:Register(LichKing.Id, LichKing)
-end
+NS.LichKing=LichKing
+_G.GuardpointLichKing=LichKing
