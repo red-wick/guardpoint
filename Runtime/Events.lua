@@ -15,6 +15,7 @@ local function resolveEncounter()
     end
     return NS.LichKing
 end
+function X.GetEncounter() return resolveEncounter() end
 local function scheduleNext()
     local delay;if S.reaper==0 then delay=(S.phase==3 and P3_FIRST or P2_FIRST) else delay=NEXT_REAPER end
     S.nextNumber=S.reaper+1;if S.nextNumber>8 then S.nextNumber=1 end;S.nextAt=U.now()+delay
