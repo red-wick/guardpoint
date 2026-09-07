@@ -274,7 +274,7 @@ local function soulReaperPlan(phase,n)
     end
 end
 
-local function closeSpellID(name)
+local function actionSpellID(name)
     if name=="ams" then return SPELL.AMS end
     if name=="ibf" then return SPELL.IBF end
     if name=="army" then return SPELL.ARMY end
@@ -282,38 +282,46 @@ local function closeSpellID(name)
     if name=="sac" then return SPELL.SAC end
 end
 
-local function buildDataPlan(plan,deadline)
-    if not plan or not plan.type or not plan.close then return nil end
+local function buildActionList(tokens,deadline,corePair)
+    local list={}
+    local coreIndex=0
+    local pair=corePair
 
-    local before={}
-    local after={}
-    local pair=nil
-
-    if plan.type=="pair" then
-        pair=chooseCorePair(deadline)
-        for i=1,#pair do add(before,pair[i]) end
-        while #before<2 do
-            local a=choosePreFallback(deadline,before)
-            if not a then break end
-            add(before,a)
+    for i=1,#tokens do
+        local token=tokens[i]
+        local a
+        if token=="core" then
+            if not pair then pair=chooseCorePair(deadline) end
+            coreIndex=coreIndex+1
+            a=pair[coreIndex]
+        elseif token=="remaining_core" then
+            a=chooseRemainingCore(deadline)
+        elseif token=="trinket" then
+            a=chooseTrinket(deadline,list)
+        else
+            local id=actionSpellID(token)
+            if id then a=chooseSolo(id,deadline,list) end
         end
-    elseif plan.type=="solo" then
-        local closeID=closeSpellID(plan.close)
-        if not closeID then return nil end
-        local solo=chooseSolo(closeID,deadline,before)
-        add(before,solo)
-        add(after,solo)
-        return before,after,pair
-    elseif plan.type=="remaining" then
-        add(before,chooseRemainingCore(deadline))
-        if plan.extra=="trinket" then add(before,chooseTrinket(deadline,before)) end
-    else
-        return nil
+        add(list,a)
     end
 
-    local closeID=closeSpellID(plan.close)
-    if not closeID then return nil end
-    add(after,chooseSolo(closeID,deadline,before))
+    return list,pair
+end
+
+local function buildDataPlan(plan,deadline)
+    if not plan or not plan.actions then return nil end
+    if not plan.actions.before or not plan.actions.after then return nil end
+
+    local before,pair=buildActionList(plan.actions.before,deadline)
+    if not before then return nil end
+    while #before<2 do
+        local a=choosePreFallback(deadline,before)
+        if not a then break end
+        add(before,a)
+    end
+
+    local after=buildActionList(plan.actions.after,deadline,pair)
+    if not after then return nil end
     return before,after,pair
 end
 
@@ -324,67 +332,7 @@ local function buildPlan(phase,n,deadline)
         if before and after then return before,after,pair end
     end
 
-    local before={}
-    local after={}
-    local pair=nil
-    local strategy=dataPlan and dataPlan.strategy or nil
-
-    if phase==2 then
-        if strategy=="core_pair" or (not strategy and (n==1 or n==3 or n==5 or n==7)) then
-            pair=chooseCorePair(deadline)
-            for i=1,#pair do add(before,pair[i]) end
-            while #before<2 do
-                local a=choosePreFallback(deadline,before)
-                if not a then break end
-                add(before,a)
-            end
-            add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif strategy=="ibf_solo" or (not strategy and (n==2 or n==6)) then
-            local solo=chooseSolo(SPELL.IBF,deadline,before)
-            add(before,solo)
-            add(after,solo)
-        elseif strategy=="remaining_core_trinket" or (not strategy and n==4) then
-            add(before,chooseRemainingCore(deadline))
-            add(before,chooseTrinket(deadline,before))
-            add(after,chooseSolo(SPELL.ARMY,deadline,before))
-        elseif strategy=="remaining_core_pain" or (not strategy and n==8) then
-            add(before,chooseRemainingCore(deadline))
-            add(after,chooseSolo(SPELL.PAIN,deadline,before))
-        end
-    elseif phase==3 then
-        if strategy=="core_pair_ibf" or (not strategy and n==1) then
-            pair=chooseCorePair(deadline)
-            for i=1,#pair do add(before,pair[i]) end
-            while #before<2 do
-                local a=choosePreFallback(deadline,before)
-                if not a then break end
-                add(before,a)
-            end
-            add(after,chooseSolo(SPELL.IBF,deadline,before))
-        elseif strategy=="remaining_core_trinket" or (not strategy and n==2) then
-            add(before,chooseRemainingCore(deadline))
-            add(before,chooseTrinket(deadline,before))
-            add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif strategy=="core_pair" or (not strategy and (n==3 or n==5 or n==8)) then
-            pair=chooseCorePair(deadline)
-            for i=1,#pair do add(before,pair[i]) end
-            while #before<2 do
-                local a=choosePreFallback(deadline,before)
-                if not a then break end
-                add(before,a)
-            end
-            add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif strategy=="ibf_solo" or (not strategy and (n==4 or n==7)) then
-            local solo=chooseSolo(SPELL.IBF,deadline,before)
-            add(before,solo)
-            add(after,solo)
-        elseif strategy=="remaining_core_pain" or (not strategy and n==6) then
-            add(before,chooseRemainingCore(deadline))
-            add(after,chooseSolo(SPELL.PAIN,deadline,before))
-        end
-    end
-
-    return before,after,pair
+    return {},{},nil
 end
 
 local function iconFor(a)
