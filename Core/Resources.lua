@@ -1,19 +1,24 @@
 -- Guardpoint player resources
-local _, NS = ...
+local NS = _G.Guardpoint
 local S = NS.State.data
 local U = NS.Util
 
 NS.Resources = NS.Resources or {}
 local R = NS.Resources
 
-R.SPELL = {
-    TAP=45529, VB=55233, AMS=48707, IBF=48792, ARMY=42650, PAIN=33206, SAC=6940,
-}
-R.ITEM = {
-    FANG_N=50361, FANG_H=50364, SATRINA_N=47080, SATRINA_H=47088, KEY=50356,
-}
+R.SPELL = {}
+R.ITEM = {}
 
-function R.spellExists(id) return GetSpellInfo(id) ~= nil end
+function R.refresh()
+    local class = NS.Class and NS.Class.get and NS.Class.get() or nil
+    if class then
+        R.SPELL = class.Spells or {}
+        R.ITEM = class.Items or {}
+    end
+    return class
+end
+
+function R.spellExists(id) return id and GetSpellInfo(id) ~= nil end
 function R.spellIcon(id)
     local _,_,tex=GetSpellInfo(id)
     return tex or "Interface\\Icons\\INV_Misc_QuestionMark"
@@ -41,6 +46,7 @@ function R.itemCD(slot)
     return math.max(0,s+d-U.now())
 end
 function R.equippedExact(id)
+    if not id then return nil end
     if R.itemID(13)==id then return 13 end
     if R.itemID(14)==id then return 14 end
 end
