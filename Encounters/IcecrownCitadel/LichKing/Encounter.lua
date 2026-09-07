@@ -55,6 +55,13 @@ function LichKing.GetSoulReaper()
     return LichKing.SoulReaper
 end
 
+function LichKing.GetSoulReaperPlan(phase, number)
+    local soulReaper = LichKing.GetSoulReaper()
+    if soulReaper and soulReaper.GetPlan then
+        return soulReaper.GetPlan(phase, number)
+    end
+end
+
 function LichKing.FindUnit()
     local units={"boss1","boss2","boss3","boss4","target","focus","mouseover"}
     for i=1,#units do
