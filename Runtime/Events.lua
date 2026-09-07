@@ -33,7 +33,10 @@ local function scheduleNext()
 end
 local function saveCorePair(pair,number)
     if not pair or not number then return end
-    if (S.phase==2 and number==3) or (S.phase==3 and number==1) then S.corePair={};for i=1,#pair do S.corePair[#S.corePair+1]=U.copy(pair[i]) end end
+    local encounter=resolveEncounter()
+    local soulReaper=encounter and encounter.GetSoulReaper and encounter:GetSoulReaper()
+    local shouldSave=soulReaper and soulReaper.ShouldSaveCorePair and soulReaper.ShouldSaveCorePair(S.phase,number)
+    if shouldSave then S.corePair={};for i=1,#pair do S.corePair[#S.corePair+1]=U.copy(pair[i]) end end
 end
 local function startReaper(expiration,isTest)
     local timing=X.Timing or {};local t=U.now();if t-S.lastApplied<0.15 then return end;S.lastApplied=t;S.reaper=S.reaper+1;if S.reaper>8 then S.reaper=1 end;S.active=true;S.test=isTest and true or false;S.expire=(expiration and expiration>t) and expiration or (t+(timing.ReaperDuration or 5.1))
