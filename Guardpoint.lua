@@ -15,7 +15,6 @@ local NEXT_REAPER = 34.0
 local REAPER_DURATION = 5.1
 local PREWARN = 8.0
 local GLOW_LEAD = 5.0
-local LichKingSoulReaper
 
 local SPELL = {
     TAP  = 45529,
@@ -278,18 +277,77 @@ end
 
 -- Exact agreed Soul Reaper sequence.
 local function buildPlan(phase,n,deadline)
-    if not LichKingSoulReaper or not LichKingSoulReaper.BuildPlan then
-        return {}, {}, nil
+    local before={}
+    local after={}
+    local pair=nil
+
+    if phase==2 then
+        if n==1 or n==3 or n==5 or n==7 then
+            pair=chooseCorePair(deadline)
+            for i=1,#pair do add(before,pair[i]) end
+            -- If one of the two core saves is unavailable, use Teeth/Hand,
+            -- never IBF/AMS/Army as a fake "core" button.
+            while #before<2 do
+                local a=choosePreFallback(deadline,before)
+                if not a then break end
+                add(before,a)
+            end
+            local solo=chooseSolo(SPELL.AMS,deadline,before)
+            add(after,solo)
+
+        elseif n==2 or n==6 then
+            local solo=chooseSolo(SPELL.IBF,deadline,before)
+            add(before,solo)
+            add(after,solo)
+
+        elseif n==4 then
+            add(before,chooseRemainingCore(deadline))
+            add(before,chooseTrinket(deadline,before))
+            add(after,chooseSolo(SPELL.ARMY,deadline,before))
+
+        elseif n==8 then
+            add(before,chooseRemainingCore(deadline))
+            add(after,chooseSolo(SPELL.PAIN,deadline,before))
+        end
+
+    elseif phase==3 then
+        if n==1 then
+            pair=chooseCorePair(deadline)
+            for i=1,#pair do add(before,pair[i]) end
+            while #before<2 do
+                local a=choosePreFallback(deadline,before)
+                if not a then break end
+                add(before,a)
+            end
+            add(after,chooseSolo(SPELL.IBF,deadline,before))
+
+        elseif n==2 then
+            add(before,chooseRemainingCore(deadline))
+            add(before,chooseTrinket(deadline,before))
+            add(after,chooseSolo(SPELL.AMS,deadline,before))
+
+        elseif n==3 or n==5 or n==8 then
+            pair=chooseCorePair(deadline)
+            for i=1,#pair do add(before,pair[i]) end
+            while #before<2 do
+                local a=choosePreFallback(deadline,before)
+                if not a then break end
+                add(before,a)
+            end
+            add(after,chooseSolo(SPELL.AMS,deadline,before))
+
+        elseif n==4 or n==7 then
+            local solo=chooseSolo(SPELL.IBF,deadline,before)
+            add(before,solo)
+            add(after,solo)
+
+        elseif n==6 then
+            add(before,chooseRemainingCore(deadline))
+            add(after,chooseSolo(SPELL.PAIN,deadline,before))
+        end
     end
-    return LichKingSoulReaper.BuildPlan({
-        SPELL=SPELL,
-        add=add,
-        chooseCorePair=chooseCorePair,
-        chooseRemainingCore=chooseRemainingCore,
-        choosePreFallback=choosePreFallback,
-        chooseSolo=chooseSolo,
-        chooseTrinket=chooseTrinket,
-    },phase,n,deadline)
+
+    return before,after,pair
 end
 
 local function iconFor(a)
@@ -814,7 +872,6 @@ local function eventFrame()
             -- if the module is absent or incomplete.
             local lk = _G.Guardpoint and _G.Guardpoint.LichKing
             if lk then
-                LichKingSoulReaper = lk.SoulReaper
                 REAPER_IDS = lk.ReaperIDs or REAPER_IDS
                 QUAKE_ID = lk.QuakeID or QUAKE_ID
                 LK_BOSS_ID = lk.BossID or LK_BOSS_ID
