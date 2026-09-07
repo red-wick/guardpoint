@@ -1,7 +1,7 @@
 local _, ns = ...
 ns = ns or {}
 
-ns.LichKingSoulReaper = {
+local SoulReaper = {
     Phase2 = {
         [1] = "core_pair",
         [2] = "ibf_solo",
@@ -24,3 +24,9 @@ ns.LichKingSoulReaper = {
         [8] = "core_pair",
     },
 }
+
+ns.LichKingSoulReaper = SoulReaper
+
+if _G.GuardpointLichKing then
+    _G.GuardpointLichKing.SoulReaper = SoulReaper
+end
