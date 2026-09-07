@@ -267,21 +267,13 @@ local function chooseTrinket(deadline,exclude)
     if a and not has(exclude,a) and readyBy(a,deadline) then return a end
 end
 
-local function soulReaperStrategy(phase,n)
-    local sr=_G.GuardpointLichKing and _G.GuardpointLichKing.SoulReaper
-    if sr and sr.GetStrategy then
-        return sr.GetStrategy(phase,n)
-    end
-end
-
 local function buildPlan(phase,n,deadline)
     local before={}
     local after={}
     local pair=nil
-    local strategy=soulReaperStrategy(phase,n)
 
     if phase==2 then
-        if strategy=="core_pair" then
+        if n==1 or n==3 or n==5 or n==7 then
             pair=chooseCorePair(deadline)
             for i=1,#pair do add(before,pair[i]) end
             while #before<2 do
@@ -290,15 +282,15 @@ local function buildPlan(phase,n,deadline)
                 add(before,a)
             end
             add(after,chooseSolo(SPELL.AMS,deadline,before))
-        elseif strategy=="ibf_solo" then
+        elseif n==2 or n==6 then
             local solo=chooseSolo(SPELL.IBF,deadline,before)
             add(before,solo)
             add(after,solo)
-        elseif strategy=="remaining_core_trinket" then
+        elseif n==4 then
             add(before,chooseRemainingCore(deadline))
             add(before,chooseTrinket(deadline,before))
             add(after,chooseSolo(SPELL.ARMY,deadline,before))
-        elseif strategy=="remaining_core_pain" then
+        elseif n==8 then
             add(before,chooseRemainingCore(deadline))
             add(after,chooseSolo(SPELL.PAIN,deadline,before))
         end
@@ -825,7 +817,8 @@ SlashCmdList["GUARDPOINT"]=function(msg)
     elseif msg=="unlock" then DB.locked=false; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r unlocked")
     elseif msg=="4t10 on" then state.t10Override=true; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 ON")
     elseif msg=="4t10 off" then state.t10Override=false; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 OFF")
-    elseif msg=="4t10 auto" then state.t10Override=nil; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 AUTO") end
+    elseif msg=="4t10 auto" then state.t10Override=nil; DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r 4T10 AUTO")
+    else DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGP|r неизвестная команда. /guardpoint help") end
 end
 
 if DB.locked==nil then DB.locked=false end
