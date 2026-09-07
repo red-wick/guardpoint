@@ -78,7 +78,8 @@ end
 function R.trinket(kind)
     local slot
     if kind=="fang" then
-        slot=R.equippedByText({"синдрагос","sindragosa"})
+        local names=R.Class and R.Class.Trinkets and R.Class.Trinkets.fang and R.Class.Trinkets.fang.Names
+        if names then slot=R.equippedByText(names) end
     elseif kind=="satrina" then
         slot=R.equippedExact(R.ITEM.SATRINA_N) or R.equippedExact(R.ITEM.SATRINA_H)
     elseif kind=="key" then
