@@ -2,9 +2,10 @@
 local NS = _G.Guardpoint
 local S=NS.State.data;local U=NS.Util;local P=NS.Planner;local UI=NS.UI;local X=NS.Runtime
 
-SLASH_GUARDPOINT1="/guardpoint"
-SLASH_GUARDPOINT2="/gp"
-SlashCmdList["GUARDPOINT"]=function(msg)
+-- Use a unique slash-command key so no other addon/server command can collide with it.
+SLASH_GUARDPOINT_GP1="/guardpoint"
+SLASH_GUARDPOINT_GP2="/gp"
+SlashCmdList["GUARDPOINT_GP"]=function(msg)
     msg=U.lower(msg)
     if msg=="" or msg=="help" then
         DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGuardpoint|r: /guardpoint test | pre | p2 | p3 | reset | show | hide | lock | unlock | 4t10 on/off/auto")
