@@ -52,6 +52,10 @@ local function strategyMeta(strategy)
     if strategy == "remaining_core_pain" then return "remaining", nil, "pain" end
 end
 
+function SoulReaper.GetStrategyMeta(strategy)
+    return strategyMeta(strategy)
+end
+
 function SoulReaper.IsValid(phase, number)
     if type(number) ~= "number" or number < 1 or number > SoulReaper.MaxReapers then return false end
     local plans = planData(phase)
@@ -93,7 +97,7 @@ function SoulReaper.GetPlan(phase, number)
     local actions = SoulReaper.GetActions(phase, number)
     if not plan or not actions then return nil end
 
-    local planType, extra, close = strategyMeta(plan.strategy)
+    local planType, extra, close = SoulReaper.GetStrategyMeta(plan.strategy)
     if not planType or not close then return nil end
 
     return {
