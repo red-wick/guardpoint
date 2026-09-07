@@ -76,14 +76,18 @@ function R.equippedByText(parts)
     end
 end
 function R.trinket(kind)
+    local config=R.Class and R.Class.Trinkets and R.Class.Trinkets[kind]
+    if not config then return nil end
+
     local slot
-    if kind=="fang" then
-        local names=R.Class and R.Class.Trinkets and R.Class.Trinkets.fang and R.Class.Trinkets.fang.Names
-        if names then slot=R.equippedByText(names) end
-    elseif kind=="satrina" then
-        slot=R.equippedExact(R.ITEM.SATRINA_N) or R.equippedExact(R.ITEM.SATRINA_H)
-    elseif kind=="key" then
-        slot=R.equippedExact(R.ITEM.KEY)
+    if config.Names then
+        slot=R.equippedByText(config.Names)
+    end
+    if not slot and config.Items then
+        for i=1,#config.Items do
+            slot=R.equippedExact(config.Items[i])
+            if slot then break end
+        end
     end
     if not slot then return nil end
     return {kind="item",key=kind,id=R.itemID(slot),slot=slot}
