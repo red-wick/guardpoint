@@ -36,6 +36,11 @@ function R.ConfigureActiveClass()
     return nil
 end
 
+function R.spellID(name)
+    if not name then return nil end
+    return R.SPELL[string.upper(name)]
+end
+
 function R.spellExists(id) return GetSpellInfo(id) ~= nil end
 function R.spellIcon(id)
     local _,_,tex=GetSpellInfo(id)
