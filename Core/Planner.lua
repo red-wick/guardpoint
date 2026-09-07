@@ -12,11 +12,6 @@ local function config()
     return R.Class and R.Class.Planner
 end
 
-local function spellID(name)
-    if not name then return nil end
-    return R.SPELL[string.upper(name)]
-end
-
 function P.coreList()
     local C = config()
     if not C or not C.Core then return {} end
@@ -39,7 +34,7 @@ function P.coreList()
             end
         end
         if not requiresT10 or R.fourT10() then
-            local a=R.spellA(spellID(name),string.lower(name))
+            local a=R.spellA(R.spellID(name),string.lower(name))
             if a then r[#r+1]=a end
         end
     end
@@ -75,7 +70,7 @@ function P.choosePreFallback(deadline,exclude)
     local candidates={}
     for i=1,#((C and C.PreFallback) or {}) do
         local name=C.PreFallback[i]
-        candidates[#candidates+1]=R.spellA(spellID(name),string.lower(name))
+        candidates[#candidates+1]=R.spellA(R.spellID(name),string.lower(name))
     end
     for i=1,#candidates do
         local a=candidates[i]
@@ -90,7 +85,7 @@ function P.chooseSolo(preferredName,deadline,exclude)
     local order={}
 
     local function put(name,keyName)
-        local a=R.spellA(spellID(name),keyName or string.lower(name))
+        local a=R.spellA(R.spellID(name),keyName or string.lower(name))
         if a then order[#order+1]=a end
     end
 
@@ -137,7 +132,7 @@ function P.soulReaperPlan(phase,n)
 end
 
 function P.closeSpellID(name)
-    return spellID(name)
+    return R.spellID(name)
 end
 
 function P.buildDataPlan(plan,deadline)
