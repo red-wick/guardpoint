@@ -26,7 +26,6 @@ local SoulReaper = {
         [8] = "core_pair",
     },
 
-    -- Descriptive data kept separate from the runtime strategy strings.
     Details = {
         Phase2 = {
             [1] = { type = "pair", close = "ams" },
@@ -49,15 +48,14 @@ local SoulReaper = {
             [7] = { type = "solo", close = "ibf" },
             [8] = { type = "pair", close = "ams" },
         },
-    },
 
     -- Canonical action names. Runtime class files resolve these to actual spell/item IDs.
     Actions = {
-        core_pair = { "core", "core" },
-        core_pair_ibf = { "core", "core", "ibf" },
-        ibf_solo = { "ibf" },
-        remaining_core_trinket = { "remaining_core", "trinket", "army" },
-        remaining_core_pain = { "remaining_core", "pain" },
+        core_pair = { before = { "core", "core" }, after = { "ams" } },
+        core_pair_ibf = { before = { "core", "core" }, after = { "ibf" } },
+        ibf_solo = { before = { "ibf" }, after = { "ibf" } },
+        remaining_core_trinket = { before = { "remaining_core", "trinket" }, after = { "army" } },
+        remaining_core_pain = { before = { "remaining_core" }, after = { "pain" } },
     },
 }
 
@@ -93,11 +91,16 @@ function SoulReaper.GetPlan(phase, number)
     if not SoulReaper.IsValid(phase, number) then return nil end
 
     local details = SoulReaper.GetDetails(phase, number)
+    local actions = SoulReaper.GetActions(phase, number)
+    if not actions or not actions.before or not actions.after then return nil end
+
     return {
         phase = phase,
         number = number,
         strategy = SoulReaper.GetStrategy(phase, number),
-        actions = SoulReaper.GetActions(phase, number),
+        actions = actions,
+        beforeActions = actions.before,
+        afterActions = actions.after,
         type = details and details.type or nil,
         extra = details and details.extra or nil,
         close = details and details.close or nil,
