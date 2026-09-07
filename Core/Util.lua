@@ -1,5 +1,5 @@
 -- Guardpoint utility functions
-local _, NS = ...
+local NS = _G.Guardpoint
 local S = NS.State.data
 
 NS.Util = NS.Util or {}
