@@ -5,15 +5,18 @@
 ## Version: 1.0.2
 ## SavedVariables: GuardpointDB
 
-Encounters/IcecrownCitadel/LichKing/Encounter.lua
-Encounters/IcecrownCitadel/LichKing/SoulReaper.lua
-Classes/DeathKnight/Blood.lua
+Core/Namespace.lua
 Core/State.lua
 Core/Util.lua
+Classes/DeathKnight/Blood.lua
+Core/Class.lua
 Core/Resources.lua
+Encounters/IcecrownCitadel/LichKing/Encounter.lua
+Encounters/IcecrownCitadel/LichKing/SoulReaper.lua
 Core/Planner.lua
 UI/Main.lua
 Runtime/Events.lua
 Runtime/Commands.lua
 Guardpoint.lua
 arrow.tga
+check.tga
