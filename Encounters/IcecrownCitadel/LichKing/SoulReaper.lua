@@ -2,6 +2,8 @@ local _, ns = ...
 ns = ns or {}
 
 local SoulReaper = {
+    MaxReapers = 8,
+
     Phase2 = {
         [1] = "core_pair",
         [2] = "ibf_solo",
@@ -50,23 +52,52 @@ local SoulReaper = {
     },
 }
 
+local function phaseData(phase)
+    if phase == 2 then return SoulReaper.Phase2, SoulReaper.Details.Phase2 end
+    if phase == 3 then return SoulReaper.Phase3, SoulReaper.Details.Phase3 end
+end
+
+function SoulReaper.IsValid(phase, number)
+    if type(number) ~= "number" or number < 1 or number > SoulReaper.MaxReapers then
+        return false
+    end
+    local strategies = phaseData(phase)
+    return strategies and strategies[number] ~= nil or false
+end
+
 function SoulReaper.GetStrategy(phase, number)
-    local phaseData = phase == 2 and SoulReaper.Phase2 or SoulReaper.Phase3
-    return phaseData and phaseData[number] or nil
+    local strategies = phaseData(phase)
+    return strategies and strategies[number] or nil
 end
 
 function SoulReaper.GetDetails(phase, number)
-    local phaseData = phase == 2 and SoulReaper.Details.Phase2 or SoulReaper.Details.Phase3
-    return phaseData and phaseData[number] or nil
+    local _, details = phaseData(phase)
+    return details and details[number] or nil
 end
 
 function SoulReaper.GetPlan(phase, number)
-    local strategy = SoulReaper.GetStrategy(phase, number)
-    if not strategy then return nil end
+    if not SoulReaper.IsValid(phase, number) then return nil end
+
+    local details = SoulReaper.GetDetails(phase, number)
     return {
-        strategy = strategy,
-        details = SoulReaper.GetDetails(phase, number),
+        phase = phase,
+        number = number,
+        strategy = SoulReaper.GetStrategy(phase, number),
+        type = details and details.type or nil,
+        extra = details and details.extra or nil,
+        close = details and details.close or nil,
     }
+end
+
+function SoulReaper.GetPhaseCount(phase)
+    local strategies = phaseData(phase)
+    if not strategies then return 0 end
+
+    local count = 0
+    for i = 1, SoulReaper.MaxReapers do
+        if strategies[i] then count = i else break end
+    end
+    return count
 end
 
 ns.LichKingSoulReaper = SoulReaper
