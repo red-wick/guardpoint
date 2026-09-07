@@ -15,6 +15,7 @@ local NEXT_REAPER = 34.0
 local REAPER_DURATION = 5.1
 local PREWARN = 8.0
 local GLOW_LEAD = 5.0
+local LichKingEncounter = _G.GuardpointLichKing
 
 local SPELL = {
     TAP  = 45529,
@@ -763,43 +764,15 @@ end
 
 
 local function scanReaper()
-    for i=1,40 do
-        local _,_,_,_,_,duration,expiration,_,_,_,sid=UnitDebuff("player",i)
-        if sid and REAPER_IDS[sid] then
-            return expiration or (tnow()+REAPER_DURATION)
-        end
-    end
-end
-
-local function creatureEntryFromGUID(guid)
-    if not guid then return nil end
-    -- WotLK creature GUIDs encode the creature entry in the middle 3 bytes.
-    -- Accept both the classic 0xF130... format and the textual Creature-... form.
-    local hex=string.match(guid,"0x[%x]+")
-    if hex then
-        local body=string.sub(hex,3)
-        if string.len(body)>=12 then
-            local v=tonumber(string.sub(body,5,10),16)
-            if v then return v end
-        end
-    end
-    local entry=string.match(guid,"Creature%-[^%-]*%-[^%-]*%-([0-9]+)")
-    return entry and tonumber(entry) or nil
+    return LichKingEncounter and LichKingEncounter.ScanSoulReaper() or nil
 end
 
 local function isLKGUID(guid)
-    return creatureEntryFromGUID(guid)==LK_BOSS_ID
+    return LichKingEncounter and LichKingEncounter.IsBossGUID(guid) or false
 end
 
 local function findLKUnit()
-    local units={"boss1","boss2","boss3","boss4","target","focus","mouseover"}
-    for i=1,#units do
-        local u=units[i]
-        if UnitExists(u) then
-            local g=UnitGUID(u)
-            if isLKGUID(g) then return g end
-        end
-    end
+    return LichKingEncounter and LichKingEncounter.FindUnit() or nil
 end
 
 local function startEncounter(guid)
@@ -836,14 +809,8 @@ local function stopEncounter()
 end
 
 local function bossStillPresent()
-    if state.encounterGUID then
-        local units={"boss1","boss2","boss3","boss4","target","focus","mouseover"}
-        for i=1,#units do
-            local u=units[i]
-            if UnitExists(u) and UnitGUID(u)==state.encounterGUID then
-                return true
-            end
-        end
+    if LichKingEncounter and LichKingEncounter.IsUnitPresent(state.encounterGUID) then
+        return true
     end
     return findLKUnit() ~= nil
 end

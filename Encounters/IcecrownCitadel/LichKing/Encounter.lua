@@ -1,6 +1,7 @@
 local _, ns = ...
+ns = ns or {}
 
-ns.LichKing = {
+local LichKing = {
     BossID = 36597,
     MapID = 631,
 
@@ -22,3 +23,59 @@ ns.LichKing = {
         GlowLead = 5.0,
     },
 }
+
+function LichKing.CreatureEntryFromGUID(guid)
+    if not guid then return nil end
+
+    local hex = string.match(guid, "0x[%x]+")
+    if hex then
+        local body = string.sub(hex, 3)
+        if string.len(body) >= 12 then
+            local entry = tonumber(string.sub(body, 5, 10), 16)
+            if entry then return entry end
+        end
+    end
+
+    local entry = string.match(guid, "Creature%-[^%-]*%-[^%-]*%-([0-9]+)")
+    return entry and tonumber(entry) or nil
+end
+
+function LichKing.IsBossGUID(guid)
+    return LichKing.CreatureEntryFromGUID(guid) == LichKing.BossID
+end
+
+function LichKing.FindUnit()
+    local units = { "boss1", "boss2", "boss3", "boss4", "target", "focus", "mouseover" }
+    for i = 1, #units do
+        local unit = units[i]
+        if UnitExists(unit) then
+            local guid = UnitGUID(unit)
+            if LichKing.IsBossGUID(guid) then return guid end
+        end
+    end
+end
+
+function LichKing.IsUnitPresent(guid)
+    if not guid then return false end
+
+    local units = { "boss1", "boss2", "boss3", "boss4", "target", "focus", "mouseover" }
+    for i = 1, #units do
+        local unit = units[i]
+        if UnitExists(unit) and UnitGUID(unit) == guid then
+            return true
+        end
+    end
+    return false
+end
+
+function LichKing.ScanSoulReaper()
+    for i = 1, 40 do
+        local _, _, _, _, _, duration, expiration, _, _, _, spellID = UnitDebuff("player", i)
+        if spellID and LichKing.ReaperIDs[spellID] then
+            return expiration or (GetTime() + LichKing.Timing.ReaperDuration)
+        end
+    end
+end
+
+ns.LichKing = LichKing
+_G.GuardpointLichKing = LichKing
