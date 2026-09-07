@@ -1,6 +1,6 @@
 -- Guardpoint Soul Reaper display
 -- Independent display path for WoW 3.3.5a.
--- Combat log is the authoritative source for applying the debuff.
+-- UNIT_AURA is authoritative here because it directly exposes the player's debuff.
 
 local REAPER_IDS={ [69409]=true, [73797]=true, [73798]=true, [73799]=true }
 local f=CreateFrame("Frame","GP_SR_Display",UIParent)
@@ -14,16 +14,21 @@ f.timer=f:CreateFontString(nil,"OVERLAY","NumberFontNormalHuge");f.timer:SetPoin
 
 local activeUntil=0
 local number=0
-local lastApplyAt=0
+
+local function scanReaper()
+    for i=1,40 do
+        local _,_,_,_,_,duration,expiration,_,_,_,spellID=UnitDebuff("player",i)
+        if spellID and REAPER_IDS[spellID] then
+            return expiration or (GetTime()+(duration or 5.1))
+        end
+    end
+end
 
 local function showReaper(expiration)
     local now=GetTime()
     if not expiration or expiration<=now then return end
-    if now-lastApplyAt>0.20 then
-        number=number+1
-        if number>8 then number=1 end
-        lastApplyAt=now
-    end
+    number=number+1
+    if number>8 then number=1 end
     activeUntil=expiration
     f.title:SetText(string.format("SOUL REAPER #%d",number))
     f.timer:SetText(string.format("%.1f",math.max(0,expiration-now)))
@@ -35,28 +40,21 @@ local function clearReaper()
     f:Hide()
 end
 
-f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 f:RegisterEvent("UNIT_AURA")
 f:SetScript("OnEvent",function(self,event,...)
-    if event=="UNIT_AURA" then
-        local unit=...
-        if unit~="player" then return end
-        -- UNIT_AURA is only a fallback/synchronizer. It must not increment
-        -- the counter while the aura is already being handled by combat log.
-        if activeUntil>GetTime() then return end
-        return
-    end
-
-    local timestamp,subEvent,hideCaster,sourceGUID,sourceName,sourceFlags,destGUID,destName,destFlags,spellID=...
-    if destGUID~=UnitGUID("player") or not spellID or not REAPER_IDS[spellID] then return end
-    if subEvent=="SPELL_AURA_APPLIED" or subEvent=="SPELL_AURA_APPLIED_DOSE" then
-        local expiration
-        for i=1,40 do
-            local _,_,_,_,_,duration,exp,_,_,_,sid=UnitDebuff("player",i)
-            if sid and REAPER_IDS[sid] then expiration=exp or (GetTime()+(duration or 5.1));break end
+    if event~="UNIT_AURA" then return end
+    local unit=...
+    if unit~="player" then return end
+    local expiration=scanReaper()
+    if expiration then
+        if activeUntil<=GetTime() then
+            showReaper(expiration)
+        else
+            activeUntil=expiration
+            f.timer:SetText(string.format("%.1f",math.max(0,expiration-GetTime())))
+            f:Show();f:SetAlpha(1)
         end
-        showReaper(expiration or (GetTime()+5.1))
-    elseif subEvent=="SPELL_AURA_REMOVED" then
+    elseif activeUntil>0 then
         clearReaper()
     end
 end)
