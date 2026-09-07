@@ -16,15 +16,27 @@ function X.ConfigureEncounter()
     X.Timing={P2First=(timing and timing.P2First) or 32.0,P3First=(timing and timing.P3First) or 37.5,NextReaper=(timing and timing.NextReaper) or 34.0,ReaperDuration=(timing and timing.ReaperDuration) or 5.1,Prewarn=(timing and timing.Prewarn) or 8.0,GlowLead=(timing and timing.GlowLead) or 5.0}
     return encounter
 end
-local function hostShow(text)
+local function ensureHost()
     local f=_G.GP_SoulReaperHost
-    if not f then return end
-    f:Show();f:SetAlpha(1)
-    if f.text then f.text:SetText(text or "SOUL REAPER") end
+    if f then return f end
+    f=CreateFrame("Frame","GP_SoulReaperHost",UIParent)
+    f:SetWidth(240);f:SetHeight(72);f:SetFrameStrata("TOOLTIP");f:SetToplevel(true);f:SetClampedToScreen(true);f:SetAlpha(1)
+    f:SetPoint("CENTER",UIParent,"CENTER",0,-120)
+    if f.SetBackdrop then
+        f:SetBackdrop({bgFile="Interface\\Tooltips\\UI-Tooltip-Background",edgeFile="Interface\\Tooltips\\UI-Tooltip-Border",tile=true,tileSize=16,edgeSize=12,insets={left=3,right=3,top=3,bottom=3}})
+        f:SetBackdropColor(0,0,0,0.9);f:SetBackdropBorderColor(0.2,0.65,1,1)
+    end
+    f.text=f:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
+    f.text:SetPoint("CENTER",f,"CENTER",0,0);f.text:SetTextColor(1,0.85,0.25,1);f.text:SetShadowColor(0,0,0,1);f.text:SetShadowOffset(1,-1)
+    f:Hide()
+    _G.GP_SoulReaperHost=f
+    return f
+end
+local function hostShow(text)
+    local f=ensureHost();f:Show();f:SetAlpha(1);f.text:SetText(text or "SOUL REAPER")
 end
 local function hostHide()
-    local f=_G.GP_SoulReaperHost
-    if f then f:Hide() end
+    local f=_G.GP_SoulReaperHost;if f then f:Hide() end
 end
 local function scheduleNext()
     local encounter=resolveEncounter();local timing=X.Timing or {};local delay
@@ -75,7 +87,7 @@ end
 function X.phaseReset(p) phaseReset(p) end
 function X.initialize()
     if X.frame then return true end
-    X.ConfigureEncounter();UI.create()
+    X.ConfigureEncounter();UI.create();ensureHost()
     local e=_G.GP_Events
     if not e then e=CreateFrame("Frame","GP_Events_Modular",UIParent) end
     X.frame=e;e:UnregisterAllEvents()
