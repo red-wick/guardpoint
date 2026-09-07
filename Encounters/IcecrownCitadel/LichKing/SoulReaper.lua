@@ -50,6 +50,15 @@ local SoulReaper = {
             [8] = { type = "pair", close = "ams" },
         },
     },
+
+    -- Canonical action names. Runtime class files resolve these to actual spell/item IDs.
+    Actions = {
+        core_pair = { "core", "core" },
+        core_pair_ibf = { "core", "core", "ibf" },
+        ibf_solo = { "ibf" },
+        remaining_core_trinket = { "remaining_core", "trinket", "army" },
+        remaining_core_pain = { "remaining_core", "pain" },
+    },
 }
 
 local function phaseData(phase)
@@ -75,6 +84,11 @@ function SoulReaper.GetDetails(phase, number)
     return details and details[number] or nil
 end
 
+function SoulReaper.GetActions(phase, number)
+    local strategy = SoulReaper.GetStrategy(phase, number)
+    return strategy and SoulReaper.Actions[strategy] or nil
+end
+
 function SoulReaper.GetPlan(phase, number)
     if not SoulReaper.IsValid(phase, number) then return nil end
 
@@ -83,6 +97,7 @@ function SoulReaper.GetPlan(phase, number)
         phase = phase,
         number = number,
         strategy = SoulReaper.GetStrategy(phase, number),
+        actions = SoulReaper.GetActions(phase, number),
         type = details and details.type or nil,
         extra = details and details.extra or nil,
         close = details and details.close or nil,
