@@ -815,7 +815,6 @@ local function eventFrame()
             -- if the module is absent or incomplete.
             local lk = NS.LichKing
             if lk then
-                LichKingSoulReaper = lk.SoulReaper
                 REAPER_IDS = lk.ReaperIDs or REAPER_IDS
                 QUAKE_ID = lk.QuakeID or QUAKE_ID
                 LK_BOSS_ID = lk.BossID or LK_BOSS_ID
@@ -829,6 +828,7 @@ local function eventFrame()
                     GLOW_LEAD = timing.GlowLead or GLOW_LEAD
                 end
             end
+            LichKingSoulReaper = (lk and lk.SoulReaper) or _G.GuardpointSoulReaper
             stopEncounter()
             return
         end

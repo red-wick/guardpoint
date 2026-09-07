@@ -1,11 +1,11 @@
 local _, ns = ...
-
+ns = ns or {}
 ns.LichKing = ns.LichKing or {}
 
 -- Keeps the prescribed Soul Reaper order separate from the UI and combat-log
 -- handling. The caller supplies currently available buttons, so cooldown and
 -- inventory checks remain in the main addon.
-ns.LichKing.SoulReaper = {
+local SoulReaper = {
     BuildPlan = function(api, phase, n, deadline)
         local before = {}
         local after = {}
@@ -69,3 +69,8 @@ ns.LichKing.SoulReaper = {
         return before, after, pair
     end,
 }
+
+ns.LichKing.SoulReaper = SoulReaper
+-- WotLK clients can load addon files without a shared namespace table.
+-- Keep an explicit fallback so the main file always receives this module.
+_G.GuardpointSoulReaper = SoulReaper
