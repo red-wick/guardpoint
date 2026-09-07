@@ -40,5 +40,20 @@ function R:Detect()
     local classToken = select(2, UnitClass("player"))
     if not classToken then return nil end
 
-    return self:Select(classToken)
+    local module = self:Get(classToken)
+    if module then
+        self.Active = module
+        return module
+    end
+
+    local prefix = classToken .. ":"
+    for key, candidate in pairs(self.Modules) do
+        if string.sub(key, 1, string.len(prefix)) == prefix then
+            self.Active = candidate
+            return candidate
+        end
+    end
+
+    self.Active = nil
+    return nil
 end
