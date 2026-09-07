@@ -50,8 +50,22 @@ local function saveCorePair(pair,number)
 end
 local function startReaper(expiration,isTest)
     local timing=X.Timing or {};local t=U.now();if t-(S.lastApplied or 0)<0.15 then return end;S.lastApplied=t;S.reaper=S.reaper+1;if S.reaper>8 then S.reaper=1 end;S.active=true;S.test=isTest and true or false;S.expire=(expiration and expiration>t) and expiration or t+(timing.ReaperDuration or 5.1)
-    if not S.plan then S.used={};local b,a,pair=P.buildPlan(S.phase,S.reaper,S.expire);S.plan={before=b,after=a};saveCorePair(pair,S.reaper) end
-    scheduleNext();UI.render();hostShow(string.format("SOUL REAPER #%d  %.1f",S.reaper,math.max(0,S.expire-U.now())))
+    -- The visual state must become visible even if plan construction has a bug.
+    -- Build the plan only after the activation state is committed.
+    hostShow(string.format("SOUL REAPER #%d  %.1f",S.reaper,math.max(0,S.expire-U.now())))
+    if not S.plan then
+        S.used={}
+        local ok,b,a,pair=pcall(P.buildPlan,S.phase,S.reaper,S.expire)
+        if ok then
+            S.plan={before=b or {},after=a or {}}
+            saveCorePair(pair,S.reaper)
+        else
+            S.plan={before={},after={}}
+        end
+    end
+    scheduleNext()
+    UI.render()
+    hostShow(string.format("SOUL REAPER #%d  %.1f",S.reaper,math.max(0,S.expire-U.now())))
 end
 local function phaseReset(p)
     S.phase=p;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false;scheduleNext();if UI.frame then UI.frame:Hide() end;hostHide()
