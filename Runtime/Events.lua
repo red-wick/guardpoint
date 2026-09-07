@@ -32,7 +32,8 @@ function X.ConfigureEncounter()
     return encounter
 end
 local function scheduleNext()
-    local delay;if S.reaper==0 then delay=(S.phase==3 and P3_FIRST or P2_FIRST) else delay=NEXT_REAPER end
+    local timing=X.Timing or {}
+    local delay;if S.reaper==0 then delay=(S.phase==3 and (timing.P3First or 37.5) or (timing.P2First or 32.0)) else delay=timing.NextReaper or 34.0 end
     S.nextNumber=S.reaper+1;if S.nextNumber>8 then S.nextNumber=1 end;S.nextAt=U.now()+delay
 end
 local function saveCorePair(pair,number)
@@ -40,7 +41,7 @@ local function saveCorePair(pair,number)
     if (S.phase==2 and number==3) or (S.phase==3 and number==1) then S.corePair={};for i=1,#pair do S.corePair[#S.corePair+1]=U.copy(pair[i]) end end
 end
 local function startReaper(expiration,isTest)
-    local t=U.now();if t-S.lastApplied<0.15 then return end;S.lastApplied=t;S.reaper=S.reaper+1;if S.reaper>8 then S.reaper=1 end;S.active=true;S.test=isTest and true or false;S.expire=(expiration and expiration>t) and expiration or (t+REAPER_DURATION)
+    local timing=X.Timing or {};local t=U.now();if t-S.lastApplied<0.15 then return end;S.lastApplied=t;S.reaper=S.reaper+1;if S.reaper>8 then S.reaper=1 end;S.active=true;S.test=isTest and true or false;S.expire=(expiration and expiration>t) and expiration or (t+(timing.ReaperDuration or 5.1))
     if not S.plan then S.used={};local b,a,pair=P.buildPlan(S.phase,S.reaper,S.expire);S.plan={before=b,after=a};saveCorePair(pair,S.reaper) end;scheduleNext();UI.render()
 end
 local function phaseReset(p)
@@ -91,10 +92,10 @@ function X.initialize()
         local encounter=resolveEncounter()
         if sourceGUID and encounter and encounter.IsBossGUID and encounter.IsBossGUID(sourceGUID) then if not S.encounter then startEncounter(sourceGUID) end;S.encounterGUID=sourceGUID end
         if subEvent=="UNIT_DIED" and destGUID and S.encounterGUID and destGUID==S.encounterGUID then stopEncounter();return end
-        if spellID and REAPER_IDS[spellID] and destGUID==UnitGUID("player") then
+        if spellID and X.ReaperIDs[spellID] and destGUID==UnitGUID("player") then
             if subEvent=="SPELL_AURA_APPLIED" or subEvent=="SPELL_AURA_APPLIED_DOSE" then local exp=scanReaper();startReaper(exp,false)
             elseif subEvent=="SPELL_AURA_REMOVED" then if S.active and not S.test then S.active=false;S.expire=0;S.plan=nil;S.used={};UI.frame:Hide() end end
-        elseif subEvent=="SPELL_CAST_START" and spellID==QUAKE_ID and S.encounter then
+        elseif subEvent=="SPELL_CAST_START" and spellID==X.QuakeID and S.encounter then
             if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;scheduleNext();UI.frame:Hide()
             elseif S.phase==2 then S.phase=3;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;scheduleNext();UI.frame:Hide() end
         elseif subEvent=="SPELL_CAST_SUCCESS" and sourceGUID==UnitGUID("player") then markSpellUsed(spellID) end
@@ -102,7 +103,7 @@ function X.initialize()
     e:SetScript("OnUpdate",function()
         local t=U.now();if not S.encounter and not S.test then if UI.frame then UI.frame:Hide() end;return end
         if S.active then if t>=S.expire then S.active=false;S.test=false;S.expire=0;S.plan=nil;S.used={};if UI.frame then UI.frame:Hide() end;return end;UI.render()
-        elseif S.nextAt then local left=S.nextAt-t;if left<=PREWARN and left>0 then if not S.plan then local b,a,pair=P.buildPlan(S.phase,S.nextNumber,S.nextAt);S.plan={before=b,after=a};saveCorePair(pair,S.nextNumber) end;UI.render() elseif left<=0 then if not S.plan then local b,a,pair=P.buildPlan(S.phase,S.nextNumber,t);S.plan={before=b,after=a};saveCorePair(pair,S.nextNumber) end;UI.render() else UI.frame:Hide() end end
+        elseif S.nextAt then local left=S.nextAt-t;if left<=(X.Timing.Prewarn or 8.0) and left>0 then if not S.plan then local b,a,pair=P.buildPlan(S.phase,S.nextNumber,S.nextAt);S.plan={before=b,after=a};saveCorePair(pair,S.nextNumber) end;UI.render() elseif left<=0 then if not S.plan then local b,a,pair=P.buildPlan(S.phase,S.nextNumber,t);S.plan={before=b,after=a};saveCorePair(pair,S.nextNumber) end;UI.render() else UI.frame:Hide() end end
         UI.updateButtonState()
     end)
 end
