@@ -1,7 +1,9 @@
 -- Guardpoint runtime / encounter events
 local _, NS = ...
-local S=NS.State.data; local U=NS.Util; local R=NS.Resources; local P=NS.Planner; local UI=NS.UI; local LK=NS.LichKing
+local S=NS.State.data; local U=NS.Util; local R=NS.Resources; local P=NS.Planner; local UI=NS.UI
 NS.Runtime=NS.Runtime or {}; local X=NS.Runtime
+local ER=NS.EncounterRegistry
+local LK=ER and (ER:GetActive() or ER:Detect()) or NS.LichKing
 local REAPER_IDS=LK and LK.ReaperIDs or {[69409]=true,[73797]=true,[73798]=true,[73799]=true}; local QUAKE_ID=LK and LK.QuakeID or 72262
 local P2_FIRST=LK and LK.Timing.P2First or 32.0; local P3_FIRST=LK and LK.Timing.P3First or 37.5; local NEXT_REAPER=LK and LK.Timing.NextReaper or 34.0; local REAPER_DURATION=LK and LK.Timing.ReaperDuration or 5.1; local PREWARN=LK and LK.Timing.Prewarn or 8.0
 local function scheduleNext()
