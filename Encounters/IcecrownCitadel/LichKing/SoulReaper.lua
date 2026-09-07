@@ -44,6 +44,14 @@ local function planData(phase)
     if phase == 3 then return SoulReaper.Plans.Phase3 end
 end
 
+local function strategyMeta(strategy)
+    if strategy == "core_pair" then return "pair", nil, "ams" end
+    if strategy == "core_pair_ibf" then return "pair", nil, "ibf" end
+    if strategy == "ibf_solo" then return "solo", nil, "ibf" end
+    if strategy == "remaining_core_trinket" then return "remaining", "trinket", "army" end
+    if strategy == "remaining_core_pain" then return "remaining", nil, "pain" end
+end
+
 function SoulReaper.IsValid(phase, number)
     if type(number) ~= "number" or number < 1 or number > SoulReaper.MaxReapers then return false end
     local plans = planData(phase)
@@ -82,6 +90,9 @@ function SoulReaper.GetPlan(phase, number)
     local actions = SoulReaper.GetActions(phase, number)
     if not plan or not actions then return nil end
 
+    local planType, extra, close = strategyMeta(plan.strategy)
+    if not planType or not close then return nil end
+
     return {
         phase = phase,
         number = number,
@@ -89,6 +100,9 @@ function SoulReaper.GetPlan(phase, number)
         actions = actions,
         beforeActions = actions.before,
         afterActions = actions.after,
+        type = planType,
+        extra = extra,
+        close = close,
     }
 end
 
