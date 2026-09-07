@@ -126,7 +126,7 @@ end
 function P.soulReaperPlan(phase,n)
     local encounter
     if NS.EncounterRegistry then
-        encounter=NS.EncounterRegistry:GetActive()
+        encounter=NS.EncounterRegistry:Resolve()
     end
     if encounter and encounter.GetSoulReaper then
         local sr=encounter:GetSoulReaper()
