@@ -25,16 +25,13 @@ function X.ConfigureEncounter()
         NextReaper=(timing and timing.NextReaper) or 34.0,
         ReaperDuration=(timing and timing.ReaperDuration) or 5.1,
         Prewarn=(timing and timing.Prewarn) or 8.0,
+        GlowLead=(timing and timing.GlowLead) or 5.0,
     }
     return encounter
 end
 local function scheduleNext()
-    local encounter=resolveEncounter()
-    local timing=X.Timing or {}
-    local delay
-    if encounter and encounter.GetReaperDelay then
-        delay=encounter.GetReaperDelay(S.phase,S.reaper)
-    end
+    local encounter=resolveEncounter();local timing=X.Timing or {};local delay
+    if encounter and encounter.GetReaperDelay then delay=encounter.GetReaperDelay(S.phase,S.reaper) end
     if not delay then
         if S.reaper==0 then delay=(S.phase==3 and (timing.P3First or 37.5) or (timing.P2First or 32.0)) else delay=timing.NextReaper or 34.0 end
     end
@@ -42,8 +39,7 @@ local function scheduleNext()
 end
 local function saveCorePair(pair,number)
     if not pair or not number then return end
-    local encounter=resolveEncounter()
-    local shouldSave=encounter and encounter.ShouldSaveCorePair and encounter.ShouldSaveCorePair(S.phase,number)
+    local encounter=resolveEncounter();local shouldSave=encounter and encounter.ShouldSaveCorePair and encounter.ShouldSaveCorePair(S.phase,number)
     if shouldSave then S.corePair={};for i=1,#pair do S.corePair[#S.corePair+1]=U.copy(pair[i]) end end
 end
 local function startReaper(expiration,isTest)
@@ -70,22 +66,20 @@ local function scanReaper() local encounter=resolveEncounter();return encounter 
 local function findLKUnit() local encounter=resolveEncounter();return encounter and encounter.FindUnit and encounter.FindUnit() or nil end
 local function startEncounter(guid)
     if S.encounter then return end
-    local encounter=resolveEncounter()
-    S.encounter=true;S.encounterGUID=guid or (encounter and encounter.FindUnit and encounter.FindUnit()) or nil;S.encounterStart=U.now();S.phase=1;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false
+    local encounter=resolveEncounter();S.encounter=true;S.encounterGUID=guid or (encounter and encounter.FindUnit and encounter.FindUnit()) or nil;S.encounterStart=U.now();S.phase=1;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false
 end
 local function stopEncounter()
     S.encounter=false;S.encounterGUID=nil;S.encounterStart=0;S.active=false;S.expire=0;S.nextAt=nil;S.nextNumber=1;S.reaper=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false;if UI.frame then UI.frame:Hide() end
 end
 local function bossStillPresent()
-    local encounter=resolveEncounter()
-    if encounter and encounter.IsUnitPresent and encounter.IsUnitPresent(S.encounterGUID) then return true end
+    local encounter=resolveEncounter();if encounter and encounter.IsUnitPresent and encounter.IsUnitPresent(S.encounterGUID) then return true end
     return findLKUnit()~=nil
 end
 function X.phaseReset(p) phaseReset(p) end
 function X.initialize()
     if X.frame then return end
     X.ConfigureEncounter()
-    UI.create();local e=CreateFrame("Frame","GP_Events",UIParent);X.frame=e
+    UI.create();local e=CreateFrame("Frame","GP_Events_Modular",UIParent);X.frame=e
     e:RegisterEvent("PLAYER_LOGIN");e:RegisterEvent("PLAYER_ENTERING_WORLD");e:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");e:RegisterEvent("UNIT_AURA");e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");e:RegisterEvent("PLAYER_UNGHOST");e:RegisterEvent("PLAYER_REGEN_ENABLED");e:RegisterEvent("UNIT_TARGET");e:RegisterEvent("PLAYER_TARGET_CHANGED");hookItemUse()
     e:SetScript("OnEvent",function(self,event,...)
         if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then R.ConfigureActiveClass();X.ConfigureEncounter();stopEncounter();return end
@@ -94,16 +88,14 @@ function X.initialize()
         if event=="UNIT_AURA" then local unit=...;if unit=="player" then local exp=scanReaper();if exp then if not S.encounter then startEncounter(findLKUnit()) end;if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.plan=nil;S.used={};S.corePair=nil end;if not S.active then startReaper(exp,false) else S.expire=exp end elseif S.active and not S.test then S.active=false;S.plan=nil;UI.frame:Hide() end end;return end
         if event=="UNIT_TARGET" or event=="PLAYER_TARGET_CHANGED" then if not S.encounter then local g=findLKUnit();if g and UnitAffectingCombat("player") then startEncounter(g) end end;return end
         if event=="UNIT_SPELLCAST_SUCCEEDED" then local unit,_,sid=...;if unit=="player" and sid then markSpellUsed(sid) end;return end
-        local subEvent=arg2;local sourceGUID=arg3;local destGUID=arg6;local spellID=arg9
-        local encounter=resolveEncounter()
+        local subEvent=arg2;local sourceGUID=arg3;local destGUID=arg6;local spellID=arg9;local encounter=resolveEncounter()
         if sourceGUID and encounter and encounter.IsBossGUID and encounter.IsBossGUID(sourceGUID) then if not S.encounter then startEncounter(sourceGUID) end;S.encounterGUID=sourceGUID end
         if subEvent=="UNIT_DIED" and destGUID and S.encounterGUID and destGUID==S.encounterGUID then stopEncounter();return end
         if spellID and encounter and encounter.IsReaperSpell and encounter.IsReaperSpell(spellID) and destGUID==UnitGUID("player") then
             if subEvent=="SPELL_AURA_APPLIED" or subEvent=="SPELL_AURA_APPLIED_DOSE" then local exp=scanReaper();startReaper(exp,false)
             elseif subEvent=="SPELL_AURA_REMOVED" then if S.active and not S.test then S.active=false;S.expire=0;S.plan=nil;S.used={};UI.frame:Hide() end end
         elseif subEvent=="SPELL_CAST_START" and encounter and encounter.IsQuakeSpell and encounter.IsQuakeSpell(spellID) and S.encounter then
-            if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;scheduleNext();UI.frame:Hide()
-            elseif S.phase==2 then S.phase=3;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;scheduleNext();UI.frame:Hide() end
+            if S.phase==1 or S.phase==2 then S.phase=S.phase+1;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;scheduleNext();UI.frame:Hide() end
         elseif subEvent=="SPELL_CAST_SUCCESS" and sourceGUID==UnitGUID("player") then markSpellUsed(spellID) end
     end)
     e:SetScript("OnUpdate",function()
