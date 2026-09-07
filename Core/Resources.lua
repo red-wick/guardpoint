@@ -24,10 +24,7 @@ end
 
 function R.ConfigureActiveClass()
     if NS.ClassRegistry then
-        local classModule = NS.ClassRegistry:GetActive()
-        if not classModule and NS.ClassRegistry.Detect then
-            classModule = NS.ClassRegistry:Detect()
-        end
+        local classModule = NS.ClassRegistry:Resolve()
         if classModule then
             R.Configure(classModule)
             return classModule
