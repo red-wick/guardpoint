@@ -4,7 +4,6 @@ local S=NS.State.data; local U=NS.Util; local R=NS.Resources; local P=NS.Planner
 NS.Runtime=NS.Runtime or {}; local X=NS.Runtime
 local ER=NS.EncounterRegistry
 local LK=ER and (ER:GetActive() or ER:Detect()) or NS.LichKing
-local REAPER_IDS=LK and LK.ReaperIDs or {[69409]=true,[73797]=true,[73798]=true,[73799]=true}; local QUAKE_ID=LK and LK.QuakeID or 72262
 local P2_FIRST=LK and LK.Timing.P2First or 32.0; local P3_FIRST=LK and LK.Timing.P3First or 37.5; local NEXT_REAPER=LK and LK.Timing.NextReaper or 34.0; local REAPER_DURATION=LK and LK.Timing.ReaperDuration or 5.1; local PREWARN=LK and LK.Timing.Prewarn or 8.0
 local function resolveEncounter()
     if ER then
@@ -92,10 +91,10 @@ function X.initialize()
         local encounter=resolveEncounter()
         if sourceGUID and encounter and encounter.IsBossGUID and encounter.IsBossGUID(sourceGUID) then if not S.encounter then startEncounter(sourceGUID) end;S.encounterGUID=sourceGUID end
         if subEvent=="UNIT_DIED" and destGUID and S.encounterGUID and destGUID==S.encounterGUID then stopEncounter();return end
-        if spellID and X.ReaperIDs[spellID] and destGUID==UnitGUID("player") then
+        if spellID and encounter and encounter.IsReaperSpell and encounter.IsReaperSpell(spellID) and destGUID==UnitGUID("player") then
             if subEvent=="SPELL_AURA_APPLIED" or subEvent=="SPELL_AURA_APPLIED_DOSE" then local exp=scanReaper();startReaper(exp,false)
             elseif subEvent=="SPELL_AURA_REMOVED" then if S.active and not S.test then S.active=false;S.expire=0;S.plan=nil;S.used={};UI.frame:Hide() end end
-        elseif subEvent=="SPELL_CAST_START" and spellID==X.QuakeID and S.encounter then
+        elseif subEvent=="SPELL_CAST_START" and encounter and encounter.IsQuakeSpell and encounter.IsQuakeSpell(spellID) and S.encounter then
             if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;scheduleNext();UI.frame:Hide()
             elseif S.phase==2 then S.phase=3;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;scheduleNext();UI.frame:Hide() end
         elseif subEvent=="SPELL_CAST_SUCCESS" and sourceGUID==UnitGUID("player") then markSpellUsed(spellID) end
