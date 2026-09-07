@@ -1,5 +1,6 @@
 -- Guardpoint plan builder
-local _, NS = ...
+local NS = _G.Guardpoint or {}
+_G.Guardpoint = NS
 local S = NS.State.data
 local U = NS.Util
 local R = NS.Resources
