@@ -2,6 +2,7 @@ local _, NS = ...
 NS = NS or {}
 
 local LichKing = {
+    Id = "IcecrownCitadel/LichKing",
     BossID = 36597,
     MapID = 631,
 
@@ -74,3 +75,7 @@ end
 
 NS.LichKing=LichKing
 _G.GuardpointLichKing=LichKing
+
+if NS.EncounterRegistry then
+    NS.EncounterRegistry:Register(LichKing.Id, LichKing)
+end
