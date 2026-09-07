@@ -1,5 +1,5 @@
-local _, ns = ...
-ns = ns or {}
+local NS = _G.Guardpoint or {}
+_G.Guardpoint = NS
 
 local SoulReaper = {
     MaxReapers = 8,
@@ -119,7 +119,7 @@ function SoulReaper.GetPhaseCount(phase)
     return count
 end
 
-ns.LichKingSoulReaper = SoulReaper
+NS.LichKingSoulReaper = SoulReaper
 
 if _G.GuardpointLichKing then
     _G.GuardpointLichKing.SoulReaper = SoulReaper
