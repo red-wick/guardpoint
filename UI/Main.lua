@@ -18,7 +18,7 @@ end
 function UI.create()
     if UI.frame then return end
     local f=CreateFrame("Frame","GP_Main_Modular",UIParent)
-    UI.frame=f; f:SetWidth(190); f:SetHeight(76); f:SetFrameStrata("HIGH")
+    UI.frame=f; f:SetWidth(190); f:SetHeight(76); f:SetFrameStrata("HIGH"); f:SetAlpha(1)
     f:SetMovable(true); f:EnableMouse(true); f:RegisterForDrag("LeftButton")
     f:SetScript("OnDragStart",function(self) if not S.DB.locked then self:StartMoving() end end)
     f:SetScript("OnDragStop",function(self)
@@ -69,6 +69,18 @@ local function updateButtonState()
     for i=1,2 do updateOne(f.before[i],1);updateOne(f.after[i],2) end
 end
 function UI.render()
-    UI.create();local f=UI.frame;if not S.plan then f:Hide();return end;f.planBefore=S.plan.before or {};f.planAfter=S.plan.after or {};UI.layout();if S.active then f.timer:SetText(string.format("%.1f",math.max(0,(S.expire or U.now())-U.now()))) elseif S.nextAt then f.timer:SetText(string.format("%.1f",math.max(0,S.nextAt-U.now()))) else f.timer:SetText("") end;f:Show();updateButtonState()
+    UI.create()
+    local f=UI.frame
+    f:Show()
+    if not S.plan then
+        f.timer:SetText(S.active and string.format("%.1f",math.max(0,(S.expire or U.now())-U.now())) or "")
+        return
+    end
+    f.planBefore=S.plan.before or {}
+    f.planAfter=S.plan.after or {}
+    UI.layout()
+    if S.active then f.timer:SetText(string.format("%.1f",math.max(0,(S.expire or U.now())-U.now()))) elseif S.nextAt then f.timer:SetText(string.format("%.1f",math.max(0,S.nextAt-U.now()))) else f.timer:SetText("") end
+    f:Show()
+    updateButtonState()
 end
 NS.UI.updateButtonState=updateButtonState
