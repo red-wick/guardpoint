@@ -6,6 +6,15 @@ local ER=NS.EncounterRegistry
 local LK=ER and (ER:GetActive() or ER:Detect()) or NS.LichKing
 local REAPER_IDS=LK and LK.ReaperIDs or {[69409]=true,[73797]=true,[73798]=true,[73799]=true}; local QUAKE_ID=LK and LK.QuakeID or 72262
 local P2_FIRST=LK and LK.Timing.P2First or 32.0; local P3_FIRST=LK and LK.Timing.P3First or 37.5; local NEXT_REAPER=LK and LK.Timing.NextReaper or 34.0; local REAPER_DURATION=LK and LK.Timing.ReaperDuration or 5.1; local PREWARN=LK and LK.Timing.Prewarn or 8.0
+local function resolveEncounter()
+    if ER then
+        local encounter=ER:GetActive()
+        if encounter then return encounter end
+        encounter=ER:Detect()
+        if encounter then return encounter end
+    end
+    return NS.LichKing
+end
 local function scheduleNext()
     local delay;if S.reaper==0 then delay=(S.phase==3 and P3_FIRST or P2_FIRST) else delay=NEXT_REAPER end
     S.nextNumber=S.reaper+1;if S.nextNumber>8 then S.nextNumber=1 end;S.nextAt=U.now()+delay
@@ -34,17 +43,19 @@ local function hookItemUse()
     if UseInventoryItem then hooksecurefunc("UseInventoryItem",function(slot) markItemUsed(slot) end) end
     if UseAction and GetActionInfo then hooksecurefunc("UseAction",function(action)local typ,id=GetActionInfo(action);if typ=="item" and id and S.plan then for _,name in ipairs({"before","after"}) do local list=S.plan[name];for i=1,#list do local a=list[i];if a.kind=="item" and a.id==id then S.used[U.key(a)]=true end end end end end) end
 end
-local function scanReaper() return LK and LK.ScanSoulReaper() or nil end
-local function findLKUnit() return LK and LK.FindUnit() or nil end
+local function scanReaper() local encounter=resolveEncounter();return encounter and encounter.ScanSoulReaper and encounter.ScanSoulReaper() or nil end
+local function findLKUnit() local encounter=resolveEncounter();return encounter and encounter.FindUnit and encounter.FindUnit() or nil end
 local function startEncounter(guid)
     if S.encounter then return end
-    S.encounter=true;S.encounterGUID=guid or findLKUnit();S.encounterStart=U.now();S.phase=1;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false
+    local encounter=resolveEncounter()
+    S.encounter=true;S.encounterGUID=guid or (encounter and encounter.FindUnit and encounter.FindUnit()) or nil;S.encounterStart=U.now();S.phase=1;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.active=false;S.expire=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false
 end
 local function stopEncounter()
     S.encounter=false;S.encounterGUID=nil;S.encounterStart=0;S.active=false;S.expire=0;S.nextAt=nil;S.nextNumber=1;S.reaper=0;S.plan=nil;S.used={};S.corePair=nil;S.test=false;if UI.frame then UI.frame:Hide() end
 end
 local function bossStillPresent()
-    if LK and LK.IsUnitPresent(S.encounterGUID) then return true end
+    local encounter=resolveEncounter()
+    if encounter and encounter.IsUnitPresent and encounter.IsUnitPresent(S.encounterGUID) then return true end
     return findLKUnit()~=nil
 end
 function X.phaseReset(p) phaseReset(p) end
@@ -60,7 +71,8 @@ function X.initialize()
         if event=="UNIT_TARGET" or event=="PLAYER_TARGET_CHANGED" then if not S.encounter then local g=findLKUnit();if g and UnitAffectingCombat("player") then startEncounter(g) end end;return end
         if event=="UNIT_SPELLCAST_SUCCEEDED" then local unit,_,sid=...;if unit=="player" and sid then markSpellUsed(sid) end;return end
         local subEvent=arg2;local sourceGUID=arg3;local destGUID=arg6;local spellID=arg9
-        if sourceGUID and LK and LK.IsBossGUID(sourceGUID) then if not S.encounter then startEncounter(sourceGUID) end;S.encounterGUID=sourceGUID end
+        local encounter=resolveEncounter()
+        if sourceGUID and encounter and encounter.IsBossGUID and encounter.IsBossGUID(sourceGUID) then if not S.encounter then startEncounter(sourceGUID) end;S.encounterGUID=sourceGUID end
         if subEvent=="UNIT_DIED" and destGUID and S.encounterGUID and destGUID==S.encounterGUID then stopEncounter();return end
         if spellID and REAPER_IDS[spellID] and destGUID==UnitGUID("player") then
             if subEvent=="SPELL_AURA_APPLIED" or subEvent=="SPELL_AURA_APPLIED_DOSE" then local exp=scanReaper();startReaper(exp,false)
