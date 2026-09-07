@@ -1,6 +1,7 @@
 -- Guardpoint player resources
-local _, NS = ...
-local S = NS.State.data
+local NS = _G.Guardpoint or {}
+_G.Guardpoint = NS
+local S = NS.State and NS.State.data
 local U = NS.Util
 
 NS.Resources = NS.Resources or {}
