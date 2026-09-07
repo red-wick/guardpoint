@@ -32,6 +32,8 @@ NS.BloodDK = NS.BloodDK or {
 
     Trinkets = {
         fang = {Names = {"синдрагос", "sindragosa"}},
+        satrina = {Items = {47080, 47088}},
+        key = {Items = {50356}},
     },
 }
 
