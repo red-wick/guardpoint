@@ -124,10 +124,10 @@ function P.soulReaperPlan(phase,n)
         encounter=NS.EncounterRegistry:Resolve()
     end
     if encounter and encounter.GetSoulReaperPlan then
-        return encounter:GetSoulReaperPlan(phase,n)
+        return encounter.GetSoulReaperPlan(phase,n)
     end
     if encounter and encounter.GetSoulReaper then
-        local sr=encounter:GetSoulReaper()
+        local sr=encounter.GetSoulReaper()
         if sr and sr.GetPlan then return sr.GetPlan(phase,n) end
     end
     local sr=NS.LichKingSoulReaper
