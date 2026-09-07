@@ -14,15 +14,6 @@ DK.Spells = {
     ArmyOfDead = 42650,
     PainSuppression = 33206,
     HandOfSacrifice = 6940,
-
-    -- Canonical planner keys.
-    TAP = 45529,
-    VB = 55233,
-    AMS = 48707,
-    IBF = 48792,
-    ARMY = 42650,
-    PAIN = 33206,
-    SAC = 6940,
 }
 
 DK.Items = {
@@ -31,21 +22,20 @@ DK.Items = {
     SatrinaNormal = 47080,
     SatrinaHeroic = 47088,
     Key = 50356,
-
-    -- Canonical planner keys.
-    FANG_N = 50361,
-    FANG_H = 50364,
-    SATRINA_N = 47080,
-    SATRINA_H = 47088,
-    KEY = 50356,
 }
 
 DK.Actions = {
-    tap = DK.Spells.TAP,
-    vb = DK.Spells.VB,
-    ams = DK.Spells.AMS,
-    ibf = DK.Spells.IBF,
-    army = DK.Spells.ARMY,
-    pain = DK.Spells.PAIN,
-    sac = DK.Spells.SAC,
+    tap = DK.Spells.BloodTap,
+    vb = DK.Spells.VampiricBlood,
+    ams = DK.Spells.AntiMagicShell,
+    ibf = DK.Spells.IceboundFortitude,
+    army = DK.Spells.ArmyOfDead,
+    pain = DK.Spells.PainSuppression,
+    sac = DK.Spells.HandOfSacrifice,
 }
+
+DK.Items.FANG_N = DK.Items.FangNormal
+DK.Items.FANG_H = DK.Items.FangHeroic
+DK.Items.SATRINA_N = DK.Items.SatrinaNormal
+DK.Items.SATRINA_H = DK.Items.SatrinaHeroic
+DK.Items.KEY = DK.Items.Key
