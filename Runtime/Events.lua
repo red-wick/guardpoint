@@ -51,7 +51,7 @@ function X.initialize()
     UI.create();local e=CreateFrame("Frame","GP_Events",UIParent);X.frame=e
     e:RegisterEvent("PLAYER_LOGIN");e:RegisterEvent("PLAYER_ENTERING_WORLD");e:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");e:RegisterEvent("UNIT_AURA");e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");e:RegisterEvent("PLAYER_UNGHOST");e:RegisterEvent("PLAYER_REGEN_ENABLED");e:RegisterEvent("UNIT_TARGET");e:RegisterEvent("PLAYER_TARGET_CHANGED");hookItemUse()
     e:SetScript("OnEvent",function(self,event,...)
-        if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then if NS.BloodDK then R.SPELL=NS.BloodDK.Spells or R.SPELL;R.ITEM=NS.BloodDK.Items or R.ITEM end;stopEncounter();return end
+        if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then R.ConfigureActiveClass();stopEncounter();return end
         if event=="PLAYER_UNGHOST" then stopEncounter();return end
         if event=="PLAYER_REGEN_ENABLED" then if S.encounter and not bossStillPresent() then stopEncounter() end;return end
         if event=="UNIT_AURA" then local unit=...;if unit=="player" then local exp=scanReaper();if exp then if not S.encounter then startEncounter(findLKUnit()) end;if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.plan=nil;S.used={};S.corePair=nil end;if not S.active then startReaper(exp,false) else S.expire=exp end elseif S.active and not S.test then S.active=false;S.plan=nil;UI.frame:Hide() end end;return end
