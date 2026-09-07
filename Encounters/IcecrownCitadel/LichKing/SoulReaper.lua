@@ -25,7 +25,6 @@ local SoulReaper = {
     },
 
     -- Descriptive data kept separate from the runtime strategy strings.
-    -- This lets us expand the encounter plan without changing current callers.
     Details = {
         Phase2 = {
             [1] = { type = "pair", close = "ams" },
@@ -59,6 +58,15 @@ end
 function SoulReaper.GetDetails(phase, number)
     local phaseData = phase == 2 and SoulReaper.Details.Phase2 or SoulReaper.Details.Phase3
     return phaseData and phaseData[number] or nil
+end
+
+function SoulReaper.GetPlan(phase, number)
+    local strategy = SoulReaper.GetStrategy(phase, number)
+    if not strategy then return nil end
+    return {
+        strategy = strategy,
+        details = SoulReaper.GetDetails(phase, number),
+    }
 end
 
 ns.LichKingSoulReaper = SoulReaper
