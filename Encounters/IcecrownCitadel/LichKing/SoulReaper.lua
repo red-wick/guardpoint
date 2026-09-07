@@ -58,6 +58,17 @@ local SoulReaper = {
         remaining_core_trinket = { before = { "remaining_core", "trinket" }, after = { "army" } },
         remaining_core_pain = { before = { "remaining_core" }, after = { "pain" } },
     },
+
+    ValidActions = {
+        core = true,
+        remaining_core = true,
+        trinket = true,
+        ibf = true,
+        ams = true,
+        army = true,
+        pain = true,
+        sac = true,
+    },
 }
 
 local function phaseData(phase)
@@ -83,9 +94,21 @@ function SoulReaper.GetDetails(phase, number)
     return details and details[number] or nil
 end
 
+function SoulReaper.IsActionValid(action)
+    return type(action) == "string" and SoulReaper.ValidActions[action] == true
+end
+
 function SoulReaper.GetActions(phase, number)
     local strategy = SoulReaper.GetStrategy(phase, number)
-    return strategy and SoulReaper.Actions[strategy] or nil
+    local actions = strategy and SoulReaper.Actions[strategy]
+    if not actions then return nil end
+
+    for _, list in pairs(actions) do
+        for i = 1, #list do
+            if not SoulReaper.IsActionValid(list[i]) then return nil end
+        end
+    end
+    return actions
 end
 
 function SoulReaper.GetPlan(phase, number)
