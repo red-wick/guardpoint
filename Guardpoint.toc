@@ -20,4 +20,5 @@ Runtime/Events.lua
 Runtime/Commands.lua
 Guardpoint.lua
 Runtime/Bootstrap.lua
+Runtime/SoulReaperDisplay.lua
 arrow.tga
