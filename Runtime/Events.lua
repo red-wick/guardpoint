@@ -16,6 +16,21 @@ local function resolveEncounter()
     return NS.LichKing
 end
 function X.GetEncounter() return resolveEncounter() end
+function X.ConfigureEncounter()
+    local encounter=resolveEncounter()
+    X.Encounter=encounter
+    X.ReaperIDs=(encounter and encounter.ReaperIDs) or {[69409]=true,[73797]=true,[73798]=true,[73799]=true}
+    X.QuakeID=(encounter and encounter.QuakeID) or 72262
+    local timing=encounter and encounter.Timing or nil
+    X.Timing={
+        P2First=(timing and timing.P2First) or 32.0,
+        P3First=(timing and timing.P3First) or 37.5,
+        NextReaper=(timing and timing.NextReaper) or 34.0,
+        ReaperDuration=(timing and timing.ReaperDuration) or 5.1,
+        Prewarn=(timing and timing.Prewarn) or 8.0,
+    }
+    return encounter
+end
 local function scheduleNext()
     local delay;if S.reaper==0 then delay=(S.phase==3 and P3_FIRST or P2_FIRST) else delay=NEXT_REAPER end
     S.nextNumber=S.reaper+1;if S.nextNumber>8 then S.nextNumber=1 end;S.nextAt=U.now()+delay
@@ -62,10 +77,11 @@ end
 function X.phaseReset(p) phaseReset(p) end
 function X.initialize()
     if X.frame then return end
+    X.ConfigureEncounter()
     UI.create();local e=CreateFrame("Frame","GP_Events",UIParent);X.frame=e
     e:RegisterEvent("PLAYER_LOGIN");e:RegisterEvent("PLAYER_ENTERING_WORLD");e:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");e:RegisterEvent("UNIT_AURA");e:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");e:RegisterEvent("PLAYER_UNGHOST");e:RegisterEvent("PLAYER_REGEN_ENABLED");e:RegisterEvent("UNIT_TARGET");e:RegisterEvent("PLAYER_TARGET_CHANGED");hookItemUse()
     e:SetScript("OnEvent",function(self,event,...)
-        if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then R.ConfigureActiveClass();stopEncounter();return end
+        if event=="PLAYER_LOGIN" or event=="PLAYER_ENTERING_WORLD" then R.ConfigureActiveClass();X.ConfigureEncounter();stopEncounter();return end
         if event=="PLAYER_UNGHOST" then stopEncounter();return end
         if event=="PLAYER_REGEN_ENABLED" then if S.encounter and not bossStillPresent() then stopEncounter() end;return end
         if event=="UNIT_AURA" then local unit=...;if unit=="player" then local exp=scanReaper();if exp then if not S.encounter then startEncounter(findLKUnit()) end;if S.phase==1 then S.phase=2;S.reaper=0;S.nextAt=nil;S.nextNumber=1;S.plan=nil;S.used={};S.corePair=nil end;if not S.active then startReaper(exp,false) else S.expire=exp end elseif S.active and not S.test then S.active=false;S.plan=nil;UI.frame:Hide() end end;return end
