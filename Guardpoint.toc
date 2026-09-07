@@ -1,0 +1,11 @@
+## Interface: 30300
+## Title: Guardpoint
+## Notes: Defensive Timing
+## Author: Guardpoint Team
+## Version: 1.0.2
+## SavedVariables: GuardpointDB
+
+Guardpoint.lua
+Classes/DeathKnight/Blood.lua
+arrow.tga
+
