@@ -86,6 +86,9 @@ function R.trinket(kind)
 end
 function R.fourT10()
     if S.t10Override ~= nil then return S.t10Override end
+    if not R.Class or not R.Class.Features or not R.Class.Features.FourT10 then
+        return false
+    end
     if not R.tip then
         R.tip=CreateFrame("GameTooltip","GP_T10Scan",UIParent,"GameTooltipTemplate")
         R.tip:SetOwner(UIParent,"ANCHOR_NONE")
