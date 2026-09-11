@@ -57,7 +57,7 @@ function Elements:CreateRow(parent, height)
     return row
 end
 
-function Elements:CreateIcon(parent, size)
+function Elements:CreateIcon(parent, size, texture)
     local icon = self:CreateTexture(parent)
     if not icon then
         return nil
@@ -66,6 +66,10 @@ function Elements:CreateIcon(parent, size)
     local iconSize = size or 24
     icon:SetWidth(iconSize)
     icon:SetHeight(iconSize)
+
+    if texture then
+        icon:SetTexture(texture)
+    end
 
     return icon
 end
