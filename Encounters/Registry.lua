@@ -28,3 +28,7 @@ function Registry:GetCurrent()
     local mapID = GetCurrentMapAreaID()
     return self.maps[mapID]
 end
+
+function Registry:GetCurrentMapID()
+    return GetCurrentMapAreaID()
+end
