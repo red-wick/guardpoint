@@ -2,6 +2,11 @@ Guardpoint.State = Guardpoint.State or {
     playerClass = nil,
     inCombat = false,
     instance = nil,
+    mapID = nil,
+    instanceName = nil,
+    instanceType = nil,
+    difficultyID = nil,
+    maxPlayers = nil,
     encounter = nil,
     encounterStartedAt = nil,
     encounterEndedAt = nil,
@@ -14,16 +19,24 @@ function Guardpoint.State:RefreshPlayer()
 end
 
 function Guardpoint.State:RefreshInstance()
-    if not Guardpoint.Encounters or not Guardpoint.Encounters.Registry then
-        self.instance = nil
-        self.encounter = nil
-        self.encounterStartedAt = nil
-        self.encounterEndedAt = nil
-        self.encounterCompleted = false
-        return
+    self.instance = nil
+    self.mapID = nil
+    self.instanceName = nil
+    self.instanceType = nil
+    self.difficultyID = nil
+    self.maxPlayers = nil
+
+    if Guardpoint.Encounters and Guardpoint.Encounters.Registry then
+        self.mapID = GetCurrentMapAreaID()
+        self.instance = Guardpoint.Encounters.Registry:GetCurrent()
     end
 
-    self.instance = Guardpoint.Encounters.Registry:GetCurrent()
+    local name, instanceType, difficultyID, _, maxPlayers = GetInstanceInfo()
+    self.instanceName = name
+    self.instanceType = instanceType
+    self.difficultyID = difficultyID
+    self.maxPlayers = maxPlayers
+
     self.encounter = nil
     self.encounterStartedAt = nil
     self.encounterEndedAt = nil
