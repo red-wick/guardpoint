@@ -197,3 +197,27 @@ UI.Panel:SetScript("OnMouseUp", function(self, button)
 end)
 
 UI.Panel:Initialize()
+
+Guardpoint.EventBus:Register("PLAYER_LOGIN", function()
+    UI.Panel:RefreshState()
+end)
+
+Guardpoint.EventBus:Register("PLAYER_ENTERING_WORLD", function()
+    UI.Panel:RefreshState()
+end)
+
+Guardpoint.EventBus:Register("COMBAT_START", function()
+    UI.Panel:RefreshState()
+end)
+
+Guardpoint.EventBus:Register("COMBAT_END", function()
+    UI.Panel:RefreshState()
+end)
+
+Guardpoint.EventBus:Register("ENCOUNTER_START", function()
+    UI.Panel:RefreshState()
+end)
+
+Guardpoint.EventBus:Register("ENCOUNTER_END", function()
+    UI.Panel:RefreshState()
+end)
