@@ -4,10 +4,16 @@ local Lifecycle = {}
 
 Guardpoint.Runtime.EncounterLifecycle = Lifecycle
 
-Guardpoint.EventBus:Register("ENCOUNTER_START", function()
+local function CancelEncounterTasks()
     Guardpoint.Scheduler:CancelGroup("encounter")
+end
+
+Guardpoint.EventBus:Register("ENCOUNTER_START", function()
+    CancelEncounterTasks()
 end)
 
-Guardpoint.EventBus:Register("ENCOUNTER_END", function()
-    Guardpoint.Scheduler:CancelGroup("encounter")
+Guardpoint.EventBus:Register("ENCOUNTER_END", function(_, reason)
+    CancelEncounterTasks()
+
+    Guardpoint.State.encounterEndReason = reason
 end)
