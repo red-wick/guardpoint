@@ -8,7 +8,7 @@ RS.name = "Ruby Sanctum"
 RS.encounters = RS.encounters or {}
 
 function RS:Register(encounterID, encounterData)
-    if type(encounterID) ~= "number" or type(encounterData) ~= "table" then
+    if type(encounterID) ~= "string" or type(encounterData) ~= "table" then
         return
     end
 
