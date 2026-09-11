@@ -80,7 +80,7 @@ end
 
 function Detector:Clear()
     active = nil
-    Guardpoint.State:SetEncounter(nil)
+    Guardpoint.State:ClearEncounter()
 end
 
 function Detector:HandleCombatLog(...)
