@@ -31,4 +31,29 @@ function Config:Set(key, value)
     return true
 end
 
+function Config:GetPosition()
+    local position = self:Get("position")
+
+    if type(position) ~= "table" then
+        return nil
+    end
+
+    return position
+end
+
+function Config:SetPosition(point, relativePoint, x, y)
+    if not self.values then
+        return false
+    end
+
+    self.values.position = {
+        point = point,
+        relativePoint = relativePoint,
+        x = x,
+        y = y,
+    }
+
+    return true
+end
+
 Config:Initialize()
