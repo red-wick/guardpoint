@@ -58,6 +58,10 @@ function UI.Panel:GetBody()
     return self.Body
 end
 
+function UI.Panel:GetTitle()
+    return self.Title
+end
+
 function UI.Panel:Initialize()
     self:SetParent(UI.Root)
     self:SetWidth(320)
@@ -86,6 +90,14 @@ function UI.Panel:Initialize()
         self.Body = UI.Elements:CreateContainer(self.Content, "GuardpointPanelBody")
         self.Body:SetPoint("TOPLEFT", self.Header, "BOTTOMLEFT", 0, -4)
         self.Body:SetPoint("BOTTOMRIGHT", self.Content, "BOTTOMRIGHT")
+    end
+
+    if not self.Title then
+        self.Title = UI.Elements:CreateText(self.Header)
+        self.Title:SetPoint("TOPLEFT", self.Header, "TOPLEFT", 4, 0)
+        self.Title:SetPoint("BOTTOMRIGHT", self.Header, "BOTTOMRIGHT", -4, 0)
+        self.Title:SetText("GuardPoint")
+        UI.Styles:ApplyText(self.Title, 12)
     end
 
     self:ApplyScale()
