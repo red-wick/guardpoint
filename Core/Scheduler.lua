@@ -64,8 +64,18 @@ end
 function Scheduler:RunDue(now)
     now = now or GetTime()
 
+    local dueTasks = {}
+
     for taskID, task in pairs(tasks) do
         if now >= task.runAt then
+            table.insert(dueTasks, taskID)
+        end
+    end
+
+    for _, taskID in ipairs(dueTasks) do
+        local task = tasks[taskID]
+
+        if task and now >= task.runAt then
             if task.interval then
                 task.runAt = task.runAt + task.interval
                 task.callback()
