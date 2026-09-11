@@ -8,7 +8,7 @@ ICC.name = "Icecrown Citadel"
 ICC.encounters = ICC.encounters or {}
 
 function ICC:Register(encounterID, encounterData)
-    if type(encounterID) ~= "number" or type(encounterData) ~= "table" then
+    if type(encounterID) ~= "string" or type(encounterData) ~= "table" then
         return
     end
 
