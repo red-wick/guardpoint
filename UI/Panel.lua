@@ -62,6 +62,19 @@ function UI.Panel:GetTitle()
     return self.Title
 end
 
+function UI.Panel:GetStatus()
+    return self.Status
+end
+
+function UI.Panel:SetStatus(text)
+    if not self.Status then
+        return false
+    end
+
+    self.Status:SetText(text or "")
+    return true
+end
+
 function UI.Panel:Initialize()
     self:SetParent(UI.Root)
     self:SetWidth(320)
@@ -98,6 +111,13 @@ function UI.Panel:Initialize()
         self.Title:SetPoint("BOTTOMRIGHT", self.Header, "BOTTOMRIGHT", -4, 0)
         self.Title:SetText("GuardPoint")
         UI.Styles:ApplyText(self.Title, 12)
+    end
+
+    if not self.Status then
+        self.Status = UI.Elements:CreateText(self.Body)
+        self.Status:SetPoint("TOPLEFT", self.Body, "TOPLEFT", 4, 0)
+        self.Status:SetPoint("BOTTOMRIGHT", self.Body, "BOTTOMRIGHT", -4, 0)
+        UI.Styles:ApplyText(self.Status, 11)
     end
 
     self:ApplyScale()
