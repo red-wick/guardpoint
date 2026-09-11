@@ -22,6 +22,10 @@ Classes\Warrior.lua
 Classes\Paladin.lua
 Classes\Druid.lua
 
+Encounters\Registry.lua
+Encounters\IcecrownCitadel\Registry.lua
+Encounters\RubySanctum\Registry.lua
+
 Runtime\Bootstrap.lua
 Runtime\Events.lua
 Runtime\Commands.lua
