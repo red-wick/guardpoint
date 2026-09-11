@@ -69,5 +69,3 @@ function Config:SetPosition(point, relativePoint, x, y)
 
     return true
 end
-
-Config:Initialize()
