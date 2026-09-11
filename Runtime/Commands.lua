@@ -21,6 +21,15 @@ SlashCmdList.GUARDPOINT = function(message)
     elseif command == "unlock" then
         Guardpoint.Config:Set("locked", false)
         Guardpoint:Print("panel unlocked")
+    elseif string.sub(command, 1, 5) == "scale" then
+        local value = tonumber(string.match(command, "^scale%s+([%d%.]+)$"))
+        if value and value > 0 then
+            Guardpoint.Config:Set("scale", value)
+            Guardpoint.UI.Panel:ApplyScale()
+            Guardpoint:Print("scale set to " .. tostring(value))
+        else
+            Guardpoint:Print("usage: /gp scale 0.5-2")
+        end
     elseif command == "reset" then
         Guardpoint.State:SetCombat(false)
         Guardpoint.State:SetEncounter(nil)
@@ -28,6 +37,6 @@ SlashCmdList.GUARDPOINT = function(message)
         Guardpoint.UI.Panel:Reset()
         Guardpoint:Print("state and panel reset")
     else
-        Guardpoint:Print("v" .. Guardpoint.VERSION .. " | /gp show | /gp hide | /gp lock | /gp unlock | /gp debug | /gp reset")
+        Guardpoint:Print("v" .. Guardpoint.VERSION .. " | /gp show | /gp hide | /gp scale | /gp lock | /gp unlock | /gp debug | /gp reset")
     end
 end
