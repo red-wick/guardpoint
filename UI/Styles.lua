@@ -5,7 +5,7 @@ local UI = Guardpoint.UI
 UI.Styles = UI.Styles or {}
 local Styles = UI.Styles
 
-Styles.FONT = "Fonts\\FRIZQT__.TTF"
+Styles.FONT = STANDARD_TEXT_FONT
 Styles.FONT_SIZE = 12
 
 function Styles:ApplyText(fontString, size)
