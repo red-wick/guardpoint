@@ -70,8 +70,40 @@ function Guardpoint.State:GetMapID()
     return self.mapID
 end
 
+function Guardpoint.State:GetInstanceName()
+    return self.instanceName
+end
+
+function Guardpoint.State:GetInstanceType()
+    return self.instanceType
+end
+
+function Guardpoint.State:GetDifficultyID()
+    return self.difficultyID
+end
+
+function Guardpoint.State:GetMaxPlayers()
+    return self.maxPlayers
+end
+
 function Guardpoint.State:GetEncounter()
     return self.encounter
+end
+
+function Guardpoint.State:GetEncounterStartedAt()
+    return self.encounterStartedAt
+end
+
+function Guardpoint.State:GetEncounterEndedAt()
+    return self.encounterEndedAt
+end
+
+function Guardpoint.State:IsEncounterCompleted()
+    return self.encounterCompleted
+end
+
+function Guardpoint.State:GetEncounterEndReason()
+    return self.encounterEndReason
 end
 
 function Guardpoint.State:SetEncounter(encounter)
