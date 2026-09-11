@@ -14,8 +14,8 @@ Guardpoint.State = Guardpoint.State or {
 }
 
 function Guardpoint.State:RefreshPlayer()
-    local class = UnitClass("player")
-    self.playerClass = class
+    local _, classToken = UnitClass("player")
+    self.playerClass = classToken
 end
 
 function Guardpoint.State:RefreshInstance()
