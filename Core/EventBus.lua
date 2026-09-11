@@ -34,7 +34,13 @@ function Guardpoint.EventBus:Fire(event, ...)
         return
     end
 
-    for _, callback in ipairs(eventListeners) do
+    local callbacks = {}
+
+    for index, callback in ipairs(eventListeners) do
+        callbacks[index] = callback
+    end
+
+    for _, callback in ipairs(callbacks) do
         callback(...)
     end
 end
