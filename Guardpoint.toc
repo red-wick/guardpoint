@@ -2,7 +2,7 @@
 ## Title: Guardpoint
 ## Notes: Defensive Timing
 ## Author: red-wick
-## Version: 2.0.0
+## Version: 1.1.0
 ## SavedVariables: GuardpointDB
 
 Core/Init.lua
