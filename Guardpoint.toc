@@ -16,6 +16,12 @@ Data\Spells.lua
 Data\Items.lua
 Data\Icons.lua
 
+Classes\Registry.lua
+Classes\DeathKnight.lua
+Classes\Warrior.lua
+Classes\Paladin.lua
+Classes\Druid.lua
+
 Runtime\Bootstrap.lua
 Runtime\Events.lua
 Runtime\Commands.lua
