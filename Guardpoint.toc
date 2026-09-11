@@ -12,6 +12,10 @@ Core\EventBus.lua
 Core\Scheduler.lua
 Core\Utils.lua
 
+Data\Spells.lua
+Data\Items.lua
+Data\Icons.lua
+
 Runtime\Bootstrap.lua
 Runtime\Events.lua
 Runtime\Commands.lua
