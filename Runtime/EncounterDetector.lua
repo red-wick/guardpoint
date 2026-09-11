@@ -51,7 +51,7 @@ function Detector:GetActive()
 end
 
 function Detector:HandleCombatLog(...)
-    local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID = ...
+    local timestamp, event, sourceGUID, sourceName, sourceFlags, destGUID = ...
     local npcID
 
     if event == "UNIT_DIED" then
