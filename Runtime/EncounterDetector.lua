@@ -79,8 +79,13 @@ function Detector:GetActive()
 end
 
 function Detector:Clear()
+    local previous = active
     active = nil
     Guardpoint.State:ClearEncounter()
+
+    if previous then
+        Guardpoint.EventBus:Fire("ENCOUNTER_END", previous)
+    end
 end
 
 function Detector:HandleCombatLog(...)
@@ -112,7 +117,9 @@ function Detector:HandleCombatLog(...)
     if event == "UNIT_DIED" or event == "PARTY_KILL" then
         if active and IsActiveNPCID(active, npcID) then
             Guardpoint.State:CompleteEncounter()
+            local completed = active
             active = nil
+            Guardpoint.EventBus:Fire("ENCOUNTER_END", completed)
         end
         return
     end
@@ -124,6 +131,7 @@ function Detector:HandleCombatLog(...)
     if active ~= encounter then
         active = encounter
         Guardpoint.State:SetEncounter(encounter)
+        Guardpoint.EventBus:Fire("ENCOUNTER_START", encounter)
     end
 end
 
