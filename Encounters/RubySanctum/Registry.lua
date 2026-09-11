@@ -3,7 +3,7 @@ Guardpoint.Encounters.RubySanctum = Guardpoint.Encounters.RubySanctum or {}
 local RS = Guardpoint.Encounters.RubySanctum
 
 RS.instanceID = 724
-RS.mapID = 609
+RS.mapID = 610
 RS.name = "Ruby Sanctum"
 RS.encounters = RS.encounters or {}
 
