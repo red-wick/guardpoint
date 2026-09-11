@@ -3,6 +3,7 @@ Guardpoint.Encounters.IcecrownCitadel = Guardpoint.Encounters.IcecrownCitadel or
 local ICC = Guardpoint.Encounters.IcecrownCitadel
 
 ICC.instanceID = 631
+ICC.mapID = 605
 ICC.name = "Icecrown Citadel"
 ICC.encounters = ICC.encounters or {}
 
@@ -19,3 +20,4 @@ function ICC:Get(encounterID)
 end
 
 Guardpoint.Encounters.Registry:Register(ICC.instanceID, ICC)
+Guardpoint.Encounters.Registry:RegisterMap(ICC.mapID, ICC)
