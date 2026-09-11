@@ -43,7 +43,11 @@ end
 
 function Guardpoint.State:ClearEncounter()
     self.encounter = nil
-    self.encounterStartedAt = nil
+
+    if not self.encounterCompleted then
+        self.encounterStartedAt = nil
+        self.encounterEndedAt = nil
+    end
 end
 
 function Guardpoint.State:CompleteEncounter()
