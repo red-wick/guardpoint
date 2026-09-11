@@ -1,0 +1,1 @@
+-- Main mechanic panel placeholder.

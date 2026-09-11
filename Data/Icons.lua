@@ -1,0 +1,1 @@
+-- Icon definitions placeholder.

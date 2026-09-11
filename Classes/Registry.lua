@@ -1,0 +1,1 @@
+-- Class registry placeholder.

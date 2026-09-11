@@ -1,0 +1,2 @@
+-- Guardpoint core initialization.
+-- Foundation only.

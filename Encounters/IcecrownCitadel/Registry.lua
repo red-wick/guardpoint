@@ -1,0 +1,1 @@
+-- Icecrown Citadel encounter registry placeholder.

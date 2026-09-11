@@ -2,23 +2,43 @@
 ## Title: Guardpoint
 ## Notes: Defensive Timing
 ## Author: Guardpoint Team
-## Version: 1.0.2
+## Version: 2.0.0
 ## SavedVariables: GuardpointDB
 
-Core/ClassRegistry.lua
-Core/EncounterRegistry.lua
-
-Encounters/IcecrownCitadel/LichKing/Encounter.lua
-Encounters/IcecrownCitadel/LichKing/SoulReaper.lua
-Classes/DeathKnight/Blood.lua
+Core/Init.lua
+Core/Constants.lua
 Core/State.lua
-Core/Util.lua
-Core/Resources.lua
-Core/Planner.lua
-UI/Main.lua
+Core/EventBus.lua
+Core/Scheduler.lua
+Core/Utils.lua
+
+Data/Spells.lua
+Data/Items.lua
+Data/Icons.lua
+
+Classes/Registry.lua
+Classes/DeathKnight/Registry.lua
+Classes/DeathKnight/Blood.lua
+
+Encounters/Registry.lua
+Encounters/IcecrownCitadel/Registry.lua
+Encounters/IcecrownCitadel/LichKing/Encounter.lua
+Encounters/IcecrownCitadel/LichKing/Abilities.lua
+Encounters/IcecrownCitadel/LichKing/SoulReaper.lua
+
+Runtime/Bootstrap.lua
 Runtime/Events.lua
 Runtime/Commands.lua
-Guardpoint.lua
-Runtime/Bootstrap.lua
-Runtime/SoulReaperDisplay.lua
-arrow.tga
+Runtime/Update.lua
+
+UI/Root.lua
+UI/Panel.lua
+UI/Elements.lua
+UI/Styles.lua
+
+Config/Defaults.lua
+Config/Settings.lua
+
+Media/README.md
+Tests/README.md
+Docs/Architecture.md
