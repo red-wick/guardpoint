@@ -17,7 +17,26 @@ function Renderer:Refresh()
     end
 
     panel:SetTitle("GuardPoint")
-    panel:SetStatus("Ready")
+
+    local lines = {}
+
+    if state.playerClass then
+        table.insert(lines, "Class: " .. state.playerClass)
+    end
+
+    if state.instance then
+        table.insert(lines, "Instance: " .. (state.instance.name or "Unknown"))
+    end
+
+    if state.encounter then
+        table.insert(lines, "Encounter: " .. (state.encounter.name or "Unknown"))
+    end
+
+    if #lines == 0 then
+        table.insert(lines, "Ready")
+    end
+
+    panel:SetStatus(table.concat(lines, "\n"))
     return true
 end
 
