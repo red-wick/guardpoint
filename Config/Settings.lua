@@ -6,10 +6,21 @@ function Config:Initialize()
     GuardpointDB = GuardpointDB or {}
 
     for key, defaultValue in pairs(self.Defaults) do
-        if GuardpointDB[key] == nil then
+        if key ~= "position" and GuardpointDB[key] == nil then
             GuardpointDB[key] = defaultValue
         end
     end
+
+    local position = GuardpointDB.position
+    if type(position) ~= "table" then
+        position = {}
+        GuardpointDB.position = position
+    end
+
+    position.point = position.point or self.Defaults.position.point
+    position.relativePoint = position.relativePoint or self.Defaults.position.relativePoint
+    position.x = tonumber(position.x) or self.Defaults.position.x
+    position.y = tonumber(position.y) or self.Defaults.position.y
 
     self.values = GuardpointDB
 end
@@ -32,8 +43,11 @@ function Config:Set(key, value)
 end
 
 function Config:GetPosition()
-    local position = self:Get("position")
+    if not self.values then
+        return nil
+    end
 
+    local position = self.values.position
     if type(position) ~= "table" then
         return nil
     end
@@ -47,10 +61,10 @@ function Config:SetPosition(point, relativePoint, x, y)
     end
 
     self.values.position = {
-        point = point,
-        relativePoint = relativePoint,
-        x = x,
-        y = y,
+        point = point or "CENTER",
+        relativePoint = relativePoint or "CENTER",
+        x = tonumber(x) or 0,
+        y = tonumber(y) or 0,
     }
 
     return true
