@@ -20,3 +20,19 @@ function Renderer:Refresh()
     panel:SetStatus("Ready")
     return true
 end
+
+Guardpoint.EventBus:Register("PLAYER_LOGIN", function()
+    Renderer:Refresh()
+end)
+
+Guardpoint.EventBus:Register("PLAYER_ENTERING_WORLD", function()
+    Renderer:Refresh()
+end)
+
+Guardpoint.EventBus:Register("COMBAT_START", function()
+    Renderer:Refresh()
+end)
+
+Guardpoint.EventBus:Register("COMBAT_END", function()
+    Renderer:Refresh()
+end)
