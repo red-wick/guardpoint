@@ -36,6 +36,16 @@ function UI.Panel:SavePosition()
     )
 end
 
+function UI.Panel:ApplyScale()
+    local scale = tonumber(Guardpoint.Config:Get("scale")) or 1
+
+    if scale <= 0 then
+        scale = 1
+    end
+
+    self:SetScale(scale)
+end
+
 function UI.Panel:Initialize()
     self:SetParent(UI.Root)
     self:SetWidth(320)
@@ -46,6 +56,7 @@ function UI.Panel:Initialize()
     self:SetMovable(true)
     self:RegisterForDrag("LeftButton")
     UI.Styles:ApplyFrame(self)
+    self:ApplyScale()
     self:ApplyPosition()
     self:Hide()
 end
@@ -65,8 +76,10 @@ end
 
 function UI.Panel:Reset()
     Guardpoint.Config:SetPosition("CENTER", "CENTER", 0, 0)
+    Guardpoint.Config:Set("scale", Guardpoint.Config.Defaults.scale)
     self:SetWidth(320)
     self:SetHeight(80)
+    self:ApplyScale()
     self:ApplyPosition()
     self:Hide()
 end
