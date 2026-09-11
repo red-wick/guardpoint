@@ -3,6 +3,7 @@ Guardpoint.Encounters.RubySanctum = Guardpoint.Encounters.RubySanctum or {}
 local RS = Guardpoint.Encounters.RubySanctum
 
 RS.instanceID = 724
+RS.mapID = 609
 RS.name = "Ruby Sanctum"
 RS.encounters = RS.encounters or {}
 
@@ -19,3 +20,4 @@ function RS:Get(encounterID)
 end
 
 Guardpoint.Encounters.Registry:Register(RS.instanceID, RS)
+Guardpoint.Encounters.Registry:RegisterMap(RS.mapID, RS)
