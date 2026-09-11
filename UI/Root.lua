@@ -8,6 +8,7 @@ end
 
 function UI.Root:Initialize()
     self:SetParent(UIParent)
+    self:SetAllPoints(UIParent)
     self:SetFrameStrata("MEDIUM")
     self:SetScale(Guardpoint.Config:Get("scale") or 1)
     self:Hide()
