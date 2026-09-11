@@ -28,6 +28,11 @@ function Guardpoint.EventBus:Unregister(event, callback)
     end
 end
 
+function Guardpoint.EventBus:HasListeners(event)
+    local eventListeners = listeners[event]
+    return eventListeners ~= nil and table.getn(eventListeners) > 0
+end
+
 function Guardpoint.EventBus:Fire(event, ...)
     local eventListeners = listeners[event]
     if not eventListeners then
