@@ -56,3 +56,16 @@ function Elements:CreateRow(parent, height)
     row:SetHeight(height or 24)
     return row
 end
+
+function Elements:CreateIcon(parent, size)
+    local icon = self:CreateTexture(parent)
+    if not icon then
+        return nil
+    end
+
+    local iconSize = size or 24
+    icon:SetWidth(iconSize)
+    icon:SetHeight(iconSize)
+
+    return icon
+end
