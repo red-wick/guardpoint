@@ -30,7 +30,7 @@ end
 function Elements:CreateText(parent)
     parent = parent or UI.Root
 
-    local text = parent:CreateFontString(nil, "OVERLAY")
+    local text = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     text:SetJustifyH("LEFT")
     text:SetJustifyV("MIDDLE")
 
