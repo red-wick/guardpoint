@@ -45,6 +45,10 @@ function Scheduler:Cancel(taskID)
     tasks[taskID] = nil
 end
 
+function Scheduler:IsScheduled(taskID)
+    return type(taskID) == "number" and tasks[taskID] ~= nil
+end
+
 function Scheduler:CancelGroup(group)
     if group == nil then
         return
