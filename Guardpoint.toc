@@ -43,6 +43,9 @@ Encounters\RubySanctum\Bosses\SavianaRagefire.lua
 Encounters\RubySanctum\Bosses\GeneralZarithrian.lua
 Encounters\RubySanctum\Bosses\Halion.lua
 
+Config\Defaults.lua
+Config\Settings.lua
+
 Runtime\Bootstrap.lua
 Runtime\Events.lua
 Runtime\EncounterDetector.lua
