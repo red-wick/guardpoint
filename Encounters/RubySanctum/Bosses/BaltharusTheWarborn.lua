@@ -1,0 +1,1 @@
+-- Baltharus the Warborn encounter placeholder.

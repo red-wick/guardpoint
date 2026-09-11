@@ -1,0 +1,1 @@
+-- The Lich King encounter placeholder.

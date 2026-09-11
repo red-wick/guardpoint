@@ -1,0 +1,1 @@
+-- Druid class module placeholder.

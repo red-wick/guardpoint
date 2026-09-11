@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Title: Guardpoint
 ## Notes: Defensive Timing
-## Author: Guardpoint Team
+## Author: red-wick
 ## Version: 2.0.0
 ## SavedVariables: GuardpointDB
 
@@ -17,14 +17,31 @@ Data/Items.lua
 Data/Icons.lua
 
 Classes/Registry.lua
-Classes/DeathKnight/Registry.lua
-Classes/DeathKnight/Blood.lua
+Classes/DeathKnight.lua
+Classes/Warrior.lua
+Classes/Paladin.lua
+Classes/Druid.lua
 
 Encounters/Registry.lua
 Encounters/IcecrownCitadel/Registry.lua
-Encounters/IcecrownCitadel/LichKing/Encounter.lua
-Encounters/IcecrownCitadel/LichKing/Abilities.lua
-Encounters/IcecrownCitadel/LichKing/SoulReaper.lua
+Encounters/IcecrownCitadel/Bosses/LordMarrowgar.lua
+Encounters/IcecrownCitadel/Bosses/LadyDeathwhisper.lua
+Encounters/IcecrownCitadel/Bosses/GunshipBattle.lua
+Encounters/IcecrownCitadel/Bosses/DeathbringerSaurfang.lua
+Encounters/IcecrownCitadel/Bosses/Festergut.lua
+Encounters/IcecrownCitadel/Bosses/Rotface.lua
+Encounters/IcecrownCitadel/Bosses/ProfessorPutricide.lua
+Encounters/IcecrownCitadel/Bosses/BloodPrinceCouncil.lua
+Encounters/IcecrownCitadel/Bosses/BloodQueenLanaThel.lua
+Encounters/IcecrownCitadel/Bosses/ValithriaDreamwalker.lua
+Encounters/IcecrownCitadel/Bosses/Sindragosa.lua
+Encounters/IcecrownCitadel/Bosses/LichKing.lua
+
+Encounters/RubySanctum/Registry.lua
+Encounters/RubySanctum/Bosses/BaltharusTheWarborn.lua
+Encounters/RubySanctum/Bosses/SavianaRagefire.lua
+Encounters/RubySanctum/Bosses/GeneralZarithrian.lua
+Encounters/RubySanctum/Bosses/Halion.lua
 
 Runtime/Bootstrap.lua
 Runtime/Events.lua

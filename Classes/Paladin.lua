@@ -1,0 +1,1 @@
+-- Paladin class module placeholder.

@@ -1,1 +1,0 @@
--- Blood Death Knight data and behavior placeholder.

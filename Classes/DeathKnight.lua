@@ -1,0 +1,1 @@
+-- Death Knight class module placeholder.

@@ -1,0 +1,1 @@
+-- Ruby Sanctum encounter registry placeholder.

@@ -1,1 +1,0 @@
--- Soul Reaper mechanic definition placeholder.

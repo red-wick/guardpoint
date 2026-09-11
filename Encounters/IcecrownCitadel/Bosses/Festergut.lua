@@ -1,0 +1,1 @@
+-- Festergut encounter placeholder.

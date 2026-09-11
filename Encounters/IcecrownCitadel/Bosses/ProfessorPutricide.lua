@@ -1,0 +1,1 @@
+-- Professor Putricide encounter placeholder.

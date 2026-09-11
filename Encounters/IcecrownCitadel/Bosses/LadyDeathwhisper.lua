@@ -1,0 +1,1 @@
+-- Lady Deathwhisper encounter placeholder.

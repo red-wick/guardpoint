@@ -1,1 +1,0 @@
--- Lich King encounter definition placeholder.

@@ -1,0 +1,1 @@
+-- Warrior class module placeholder.

@@ -1,0 +1,1 @@
+-- Sindragosa encounter placeholder.
