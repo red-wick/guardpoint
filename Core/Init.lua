@@ -13,5 +13,3 @@ Guardpoint.Config = Guardpoint.Config or {}
 function Guardpoint:Print(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffGuardPoint|r: " .. tostring(message))
 end
-
-Guardpoint:Print("load test")
