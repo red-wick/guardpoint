@@ -12,8 +12,7 @@ local function GetNPCID(guid)
     end
 
     -- This 3.3.5 server uses GUIDs like 0xF130008F04000064.
-    -- The creature entry is the 16-bit value after the first 16 bits
-    -- of the GUID's creature-specific payload: 8F04 = 36612.
+    -- The creature entry is the 16-bit value after 0xF130: 8F04 = 36612.
     local entryHex = string.match(guid, "^0xF130%x%x(%x%x%x%x)")
     if not entryHex then
         return nil
@@ -52,7 +51,7 @@ function Detector:GetActive()
 end
 
 function Detector:HandleCombatLog(...)
-    local timestamp, event, sourceGUID, sourceName, sourceFlags, destGUID = ...
+    local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID = ...
     local npcID
 
     if event == "UNIT_DIED" then
