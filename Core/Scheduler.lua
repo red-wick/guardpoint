@@ -4,7 +4,7 @@ local Scheduler = Guardpoint.Scheduler
 local nextID = 0
 local tasks = {}
 
-function Scheduler:Schedule(delay, callback)
+function Scheduler:Schedule(delay, callback, group)
     if type(delay) ~= "number" or delay < 0 or type(callback) ~= "function" then
         return nil
     end
@@ -14,12 +14,13 @@ function Scheduler:Schedule(delay, callback)
     tasks[nextID] = {
         runAt = GetTime() + delay,
         callback = callback,
+        group = group,
     }
 
     return nextID
 end
 
-function Scheduler:ScheduleRepeating(interval, callback)
+function Scheduler:ScheduleRepeating(interval, callback, group)
     if type(interval) ~= "number" or interval <= 0 or type(callback) ~= "function" then
         return nil
     end
@@ -30,6 +31,7 @@ function Scheduler:ScheduleRepeating(interval, callback)
         runAt = GetTime() + interval,
         interval = interval,
         callback = callback,
+        group = group,
     }
 
     return nextID
@@ -41,6 +43,18 @@ function Scheduler:Cancel(taskID)
     end
 
     tasks[taskID] = nil
+end
+
+function Scheduler:CancelGroup(group)
+    if group == nil then
+        return
+    end
+
+    for taskID, task in pairs(tasks) do
+        if task.group == group then
+            tasks[taskID] = nil
+        end
+    end
 end
 
 function Scheduler:RunDue(now)
