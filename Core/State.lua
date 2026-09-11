@@ -41,6 +41,11 @@ function Guardpoint.State:SetEncounter(encounter)
     self.encounterCompleted = false
 end
 
+function Guardpoint.State:ClearEncounter()
+    self.encounter = nil
+    self.encounterStartedAt = nil
+end
+
 function Guardpoint.State:CompleteEncounter()
     if not self.encounter or self.encounterCompleted then
         return
