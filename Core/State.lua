@@ -57,6 +57,10 @@ function Guardpoint.State:SetEncounter(encounter)
     self.encounterEndReason = nil
 end
 
+function Guardpoint.State:SetEncounterEndReason(reason)
+    self.encounterEndReason = reason
+end
+
 function Guardpoint.State:ClearEncounter()
     self.encounter = nil
 
