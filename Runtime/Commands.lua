@@ -9,10 +9,12 @@ SlashCmdList.GUARDPOINT = function(message)
         Guardpoint:Print("version " .. Guardpoint.VERSION)
         Guardpoint:Print("class: " .. tostring(state.playerClass))
         Guardpoint:Print("combat: " .. tostring(state.inCombat))
-        Guardpoint:Print("encounter: " .. tostring(state.encounter))
+        Guardpoint:Print("instance: " .. tostring(state.instance and state.instance.name))
+        Guardpoint:Print("encounter: " .. tostring(state.encounter and state.encounter.name))
     elseif command == "reset" then
         Guardpoint.State:SetCombat(false)
         Guardpoint.State:SetEncounter(nil)
+        Guardpoint.State:RefreshInstance()
         Guardpoint:Print("state reset")
     else
         Guardpoint:Print("v" .. Guardpoint.VERSION .. " | /gp debug | /gp reset")
