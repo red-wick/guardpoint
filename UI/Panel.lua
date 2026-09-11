@@ -46,6 +46,10 @@ function UI.Panel:ApplyScale()
     self:SetScale(scale)
 end
 
+function UI.Panel:GetContent()
+    return self.Content
+end
+
 function UI.Panel:Initialize()
     self:SetParent(UI.Root)
     self:SetWidth(320)
@@ -56,6 +60,13 @@ function UI.Panel:Initialize()
     self:SetMovable(true)
     self:RegisterForDrag("LeftButton")
     UI.Styles:ApplyFrame(self)
+
+    if not self.Content then
+        self.Content = UI.Elements:CreateContainer(self, "GuardpointPanelContent")
+        self.Content:SetPoint("TOPLEFT", self, "TOPLEFT", 8, -8)
+        self.Content:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -8, 8)
+    end
+
     self:ApplyScale()
     self:ApplyPosition()
     self:Hide()
