@@ -48,6 +48,7 @@ Config\Settings.lua
 
 UI\Root.lua
 UI\Elements.lua
+UI\Styles.lua
 
 Runtime\Bootstrap.lua
 Runtime\Events.lua
