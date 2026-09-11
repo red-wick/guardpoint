@@ -41,3 +41,8 @@ function Elements:CreateTexture(parent)
     parent = parent or UI.Root
     return parent:CreateTexture(nil, "ARTWORK")
 end
+
+function Elements:CreateContainer(parent, name)
+    parent = parent or UI.Root
+    return self:CreateFrame("Frame", name, parent)
+end
