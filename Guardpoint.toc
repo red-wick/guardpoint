@@ -46,6 +46,8 @@ Encounters\RubySanctum\Bosses\Halion.lua
 Config\Defaults.lua
 Config\Settings.lua
 
+UI\Root.lua
+
 Runtime\Bootstrap.lua
 Runtime\Events.lua
 Runtime\EncounterDetector.lua
