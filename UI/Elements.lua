@@ -46,3 +46,13 @@ function Elements:CreateContainer(parent, name)
     parent = parent or UI.Root
     return self:CreateFrame("Frame", name, parent)
 end
+
+function Elements:CreateRow(parent, height)
+    local row = self:CreateContainer(parent)
+    if not row then
+        return nil
+    end
+
+    row:SetHeight(height or 24)
+    return row
+end
