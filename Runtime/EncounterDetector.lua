@@ -109,7 +109,7 @@ function Detector:HandleCombatLog(...)
         end
     end
 
-    if event == "UNIT_DIED" then
+    if event == "UNIT_DIED" or event == "PARTY_KILL" then
         if active and IsActiveNPCID(active, npcID) then
             Guardpoint.State:CompleteEncounter()
             active = nil
