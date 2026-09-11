@@ -20,11 +20,21 @@ local function GetNPCID(guid)
 end
 
 local function RegisterEncounter(encounter)
-    if type(encounter) ~= "table" or type(encounter.npcID) ~= "number" then
+    if type(encounter) ~= "table" then
         return
     end
 
-    npcIndex[encounter.npcID] = encounter
+    if type(encounter.npcID) == "number" then
+        npcIndex[encounter.npcID] = encounter
+    end
+
+    if type(encounter.npcIDs) == "table" then
+        for _, npcID in pairs(encounter.npcIDs) do
+            if type(npcID) == "number" then
+                npcIndex[npcID] = encounter
+            end
+        end
+    end
 end
 
 local function RegisterRaidBosses(raid)
@@ -37,13 +47,31 @@ local function RegisterRaidBosses(raid)
     end
 end
 
+local function IsActiveNPCID(encounter, npcID)
+    if type(encounter) ~= "table" then
+        return false
+    end
+
+    if encounter.npcID == npcID then
+        return true
+    end
+
+    if type(encounter.npcIDs) == "table" then
+        for _, id in pairs(encounter.npcIDs) do
+            if id == npcID then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
 function Detector:Refresh()
     npcIndex = {}
 
     local raid = Guardpoint.Encounters.Registry:GetCurrent()
-    if raid then
-        RegisterRaidBosses(raid)
-    end
+    RegisterRaidBosses(raid)
 end
 
 function Detector:GetActive()
@@ -56,17 +84,10 @@ function Detector:Clear()
 end
 
 function Detector:HandleCombatLog(...)
-    local raid = Guardpoint.Encounters.Registry:GetCurrent()
-    if not raid then
-        return
-    end
-
     local args = {...}
     local event
     local npcID
     local encounter
-
-    self:Refresh()
 
     for i = 1, table.getn(args) do
         local value = args[i]
@@ -89,7 +110,7 @@ function Detector:HandleCombatLog(...)
     end
 
     if event == "UNIT_DIED" then
-        if active and npcID == active.npcID then
+        if active and IsActiveNPCID(active, npcID) then
             self:Clear()
         end
         return
@@ -113,6 +134,13 @@ Detector:Refresh()
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event, ...)
+    if event == "PLAYER_ENTERING_WORLD" then
+        Detector:Clear()
+        Detector:Refresh()
+        return
+    end
+
     Detector:HandleCombatLog(...)
 end)
