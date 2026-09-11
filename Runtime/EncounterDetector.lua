@@ -157,6 +157,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
         Detector:End("LEAVE")
         Detector:Refresh()
+        Guardpoint.State:SetEncounterEndReason(nil)
         return
     end
 
