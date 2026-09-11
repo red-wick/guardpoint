@@ -40,8 +40,10 @@ end
 function Detector:Refresh()
     npcIndex = {}
 
-    RegisterRaidBosses(Guardpoint.Encounters.IcecrownCitadel)
-    RegisterRaidBosses(Guardpoint.Encounters.RubySanctum)
+    local raid = Guardpoint.Encounters.Registry:GetCurrent()
+    if raid then
+        RegisterRaidBosses(raid)
+    end
 end
 
 function Detector:GetActive()
@@ -54,10 +56,17 @@ function Detector:Clear()
 end
 
 function Detector:HandleCombatLog(...)
+    local raid = Guardpoint.Encounters.Registry:GetCurrent()
+    if not raid then
+        return
+    end
+
     local args = {...}
     local event
     local npcID
     local encounter
+
+    self:Refresh()
 
     for i = 1, table.getn(args) do
         local value = args[i]
