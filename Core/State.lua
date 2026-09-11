@@ -63,11 +63,10 @@ end
 
 function Guardpoint.State:ClearEncounter()
     self.encounter = nil
-
-    if not self.encounterCompleted then
-        self.encounterStartedAt = nil
-        self.encounterEndedAt = nil
-    end
+    self.encounterStartedAt = nil
+    self.encounterEndedAt = nil
+    self.encounterCompleted = false
+    self.encounterEndReason = nil
 end
 
 function Guardpoint.State:CompleteEncounter()
