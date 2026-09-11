@@ -15,8 +15,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             Guardpoint.UI.Panel:ApplyPosition()
         end
     elseif event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
-        Guardpoint.State:RefreshPlayer()
-        Guardpoint.State:RefreshInstance()
+        Guardpoint.State:Refresh()
         Guardpoint.EventBus:Fire(event, ...)
     elseif event == "PLAYER_REGEN_DISABLED" then
         Guardpoint.State:SetCombat(true)
