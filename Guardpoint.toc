@@ -45,5 +45,6 @@ Encounters\RubySanctum\Bosses\Halion.lua
 
 Runtime\Bootstrap.lua
 Runtime\Events.lua
+Runtime\EncounterDetector.lua
 Runtime\Commands.lua
 Runtime\Update.lua
