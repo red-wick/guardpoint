@@ -18,14 +18,11 @@ frame:SetScript("OnEvent", function(self, event, ...)
         Guardpoint.State:RefreshPlayer()
         Guardpoint.State:RefreshInstance()
         Guardpoint.EventBus:Fire(event, ...)
-        Guardpoint.UI.Renderer:Refresh()
     elseif event == "PLAYER_REGEN_DISABLED" then
         Guardpoint.State:SetCombat(true)
         Guardpoint.EventBus:Fire("COMBAT_START", ...)
-        Guardpoint.UI.Renderer:Refresh()
     elseif event == "PLAYER_REGEN_ENABLED" then
         Guardpoint.State:SetCombat(false)
         Guardpoint.EventBus:Fire("COMBAT_END", ...)
-        Guardpoint.UI.Renderer:Refresh()
     end
 end)
