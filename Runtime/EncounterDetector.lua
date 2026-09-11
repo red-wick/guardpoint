@@ -78,14 +78,19 @@ function Detector:GetActive()
     return active
 end
 
-function Detector:Clear()
+function Detector:End(reason)
     local previous = active
     active = nil
+
     Guardpoint.State:ClearEncounter()
 
     if previous then
-        Guardpoint.EventBus:Fire("ENCOUNTER_END", previous)
+        Guardpoint.EventBus:Fire("ENCOUNTER_END", previous, reason)
     end
+end
+
+function Detector:Clear()
+    self:End("WIPE")
 end
 
 function Detector:HandleCombatLog(...)
@@ -119,7 +124,7 @@ function Detector:HandleCombatLog(...)
             Guardpoint.State:CompleteEncounter()
             local completed = active
             active = nil
-            Guardpoint.EventBus:Fire("ENCOUNTER_END", completed)
+            Guardpoint.EventBus:Fire("ENCOUNTER_END", completed, "KILL")
         end
         return
     end
@@ -129,6 +134,10 @@ function Detector:HandleCombatLog(...)
     end
 
     if active ~= encounter then
+        if active then
+            self:End("SWITCH")
+        end
+
         active = encounter
         Guardpoint.State:SetEncounter(encounter)
         Guardpoint.EventBus:Fire("ENCOUNTER_START", encounter)
@@ -146,7 +155,7 @@ frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
-        Detector:Clear()
+        Detector:End("LEAVE")
         Detector:Refresh()
         return
     end
