@@ -24,6 +24,5 @@ frame:SetScript("OnEvent", function(self, event, ...)
     elseif event == "PLAYER_REGEN_ENABLED" then
         Guardpoint.State:SetCombat(false)
         Guardpoint.EventBus:Fire("COMBAT_END", ...)
-        Guardpoint.Scheduler:CancelGroup("encounter")
     end
 end)
