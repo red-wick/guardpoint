@@ -5,7 +5,6 @@ local UI = Guardpoint.UI
 UI.Styles = UI.Styles or {}
 local Styles = UI.Styles
 
-Styles.FONT = STANDARD_TEXT_FONT
 Styles.FONT_SIZE = 12
 
 function Styles:ApplyText(fontString, size)
@@ -13,7 +12,7 @@ function Styles:ApplyText(fontString, size)
         return false
     end
 
-    fontString:SetFont(self.FONT, size or self.FONT_SIZE)
+    fontString:SetTextHeight(size or self.FONT_SIZE)
     return true
 end
 
