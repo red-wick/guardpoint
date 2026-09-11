@@ -15,10 +15,23 @@ function UI.Panel:Initialize()
 end
 
 function UI.Panel:ShowPanel()
+    UI.Root:Show()
     self:Show()
 end
 
 function UI.Panel:HidePanel()
+    self:Hide()
+end
+
+function UI.Panel:IsPanelShown()
+    return self:IsShown() and UI.Root:IsShown()
+end
+
+function UI.Panel:Reset()
+    self:ClearAllPoints()
+    self:SetPoint("CENTER", UI.Root, "CENTER", 0, 0)
+    self:SetWidth(320)
+    self:SetHeight(80)
     self:Hide()
 end
 
