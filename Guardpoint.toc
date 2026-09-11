@@ -54,5 +54,6 @@ UI\Panel.lua
 Runtime\Bootstrap.lua
 Runtime\Events.lua
 Runtime\EncounterDetector.lua
+Runtime\EncounterLifecycle.lua
 Runtime\Commands.lua
 Runtime\Update.lua
