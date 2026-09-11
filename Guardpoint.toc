@@ -50,7 +50,6 @@ UI\Root.lua
 UI\Elements.lua
 UI\Styles.lua
 UI\Panel.lua
-UI\Renderer.lua
 
 Runtime\Bootstrap.lua
 Runtime\Events.lua
