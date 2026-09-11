@@ -5,5 +5,5 @@
 ## Version: 1.1.0
 ## SavedVariables: GuardpointDB
 
-Core/Init.lua
-Runtime/Commands.lua
+Core\Init.lua
+Runtime\Commands.lua
