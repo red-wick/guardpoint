@@ -11,6 +11,7 @@ Guardpoint.State = Guardpoint.State or {
     encounterStartedAt = nil,
     encounterEndedAt = nil,
     encounterCompleted = false,
+    encounterEndReason = nil,
 }
 
 function Guardpoint.State:RefreshPlayer()
@@ -41,6 +42,7 @@ function Guardpoint.State:RefreshInstance()
     self.encounterStartedAt = nil
     self.encounterEndedAt = nil
     self.encounterCompleted = false
+    self.encounterEndReason = nil
 end
 
 function Guardpoint.State:SetCombat(active)
@@ -52,6 +54,7 @@ function Guardpoint.State:SetEncounter(encounter)
     self.encounterStartedAt = encounter and GetTime() or nil
     self.encounterEndedAt = nil
     self.encounterCompleted = false
+    self.encounterEndReason = nil
 end
 
 function Guardpoint.State:ClearEncounter()
