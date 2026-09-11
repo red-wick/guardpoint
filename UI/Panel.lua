@@ -84,6 +84,31 @@ function UI.Panel:SetStatus(text)
     return true
 end
 
+function UI.Panel:RefreshState()
+    local state = Guardpoint.State
+    if not state then
+        return false
+    end
+
+    local text = "Ready"
+
+    if state.playerClass then
+        text = "Class: " .. state.playerClass
+    end
+
+    if state.instance then
+        text = text .. "\nInstance: " .. (state.instance.name or "Unknown")
+    end
+
+    if state.encounter then
+        text = text .. "\nEncounter: " .. (state.encounter.name or "Unknown")
+    end
+
+    self:SetTitle("GuardPoint")
+    self:SetStatus(text)
+    return true
+end
+
 function UI.Panel:Initialize()
     self:SetParent(UI.Root)
     self:SetWidth(320)
@@ -137,6 +162,7 @@ end
 function UI.Panel:ShowPanel()
     UI.Root:Show()
     self:Show()
+    self:RefreshState()
 end
 
 function UI.Panel:HidePanel()
