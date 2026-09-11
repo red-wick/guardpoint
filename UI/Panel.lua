@@ -62,6 +62,15 @@ function UI.Panel:GetTitle()
     return self.Title
 end
 
+function UI.Panel:SetTitle(text)
+    if not self.Title then
+        return false
+    end
+
+    self.Title:SetText(text or "")
+    return true
+end
+
 function UI.Panel:GetStatus()
     return self.Status
 end
