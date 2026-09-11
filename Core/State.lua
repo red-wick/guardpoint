@@ -49,6 +49,26 @@ function Guardpoint.State:SetCombat(active)
     self.inCombat = active and true or false
 end
 
+function Guardpoint.State:GetPlayerClass()
+    return self.playerClass
+end
+
+function Guardpoint.State:IsInCombat()
+    return self.inCombat
+end
+
+function Guardpoint.State:GetInstance()
+    return self.instance
+end
+
+function Guardpoint.State:GetMapID()
+    return self.mapID
+end
+
+function Guardpoint.State:GetEncounter()
+    return self.encounter
+end
+
 function Guardpoint.State:SetEncounter(encounter)
     self.encounter = encounter
     self.encounterStartedAt = encounter and GetTime() or nil
