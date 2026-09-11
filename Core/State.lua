@@ -45,6 +45,11 @@ function Guardpoint.State:RefreshInstance()
     self.encounterEndReason = nil
 end
 
+function Guardpoint.State:Refresh()
+    self:RefreshPlayer()
+    self:RefreshInstance()
+end
+
 function Guardpoint.State:SetCombat(active)
     self.inCombat = active and true or false
 end
