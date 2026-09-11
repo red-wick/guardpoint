@@ -11,6 +11,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         local addonName = ...
         if addonName == "Guardpoint" then
             Guardpoint.Config:Initialize()
+            Guardpoint.UI.Panel:ApplyScale()
             Guardpoint.UI.Panel:ApplyPosition()
         end
     elseif event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
