@@ -18,48 +18,20 @@ function Renderer:Refresh()
 
     panel:SetTitle("GuardPoint")
 
-    local lines = {}
+    local text = "Ready"
 
     if state.playerClass then
-        table.insert(lines, "Class: " .. state.playerClass)
+        text = "Class: " .. state.playerClass
     end
 
     if state.instance then
-        table.insert(lines, "Instance: " .. (state.instance.name or "Unknown"))
+        text = text .. "\nInstance: " .. (state.instance.name or "Unknown")
     end
 
     if state.encounter then
-        table.insert(lines, "Encounter: " .. (state.encounter.name or "Unknown"))
+        text = text .. "\nEncounter: " .. (state.encounter.name or "Unknown")
     end
 
-    if #lines == 0 then
-        table.insert(lines, "Ready")
-    end
-
-    panel:SetStatus(table.concat(lines, "\n"))
+    panel:SetStatus(text)
     return true
 end
-
-Guardpoint.EventBus:Register("PLAYER_LOGIN", function()
-    Renderer:Refresh()
-end)
-
-Guardpoint.EventBus:Register("PLAYER_ENTERING_WORLD", function()
-    Renderer:Refresh()
-end)
-
-Guardpoint.EventBus:Register("COMBAT_START", function()
-    Renderer:Refresh()
-end)
-
-Guardpoint.EventBus:Register("COMBAT_END", function()
-    Renderer:Refresh()
-end)
-
-Guardpoint.EventBus:Register("ENCOUNTER_START", function()
-    Renderer:Refresh()
-end)
-
-Guardpoint.EventBus:Register("ENCOUNTER_END", function()
-    Renderer:Refresh()
-end)
