@@ -23,7 +23,13 @@ SlashCmdList.GUARDPOINT = function(message)
         Guardpoint:Print("panel unlocked")
     elseif string.sub(command, 1, 5) == "scale" then
         local value = tonumber(string.match(command, "^scale%s+([%d%.]+)$"))
-        if value and value > 0 then
+        if value then
+            if value < 0.5 then
+                value = 0.5
+            elseif value > 2 then
+                value = 2
+            end
+
             Guardpoint.Config:Set("scale", value)
             Guardpoint.UI.Panel:ApplyScale()
             Guardpoint:Print("scale set to " .. tostring(value))
