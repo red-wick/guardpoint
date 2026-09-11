@@ -55,3 +55,11 @@ end)
 Guardpoint.EventBus:Register("COMBAT_END", function()
     Renderer:Refresh()
 end)
+
+Guardpoint.EventBus:Register("ENCOUNTER_START", function()
+    Renderer:Refresh()
+end)
+
+Guardpoint.EventBus:Register("ENCOUNTER_END", function()
+    Renderer:Refresh()
+end)
