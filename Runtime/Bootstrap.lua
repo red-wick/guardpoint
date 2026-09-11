@@ -1,1 +1,3 @@
--- Runtime bootstrap placeholder.
+Guardpoint.EventBus:Register("PLAYER_LOGIN", function()
+    Guardpoint:Print("v" .. Guardpoint.VERSION .. " loaded.")
+end)
