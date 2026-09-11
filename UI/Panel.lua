@@ -4,13 +4,49 @@ local UI = Guardpoint.UI
 
 UI.Panel = UI.Panel or CreateFrame("Frame", "GuardpointPanel", UI.Root)
 
+function UI.Panel:ApplyPosition()
+    local position = Guardpoint.Config:GetPosition()
+    if type(position) ~= "table" then
+        self:ClearAllPoints()
+        self:SetPoint("CENTER", UI.Root, "CENTER", 0, 0)
+        return
+    end
+
+    self:ClearAllPoints()
+    self:SetPoint(
+        position.point or "CENTER",
+        UI.Root,
+        position.relativePoint or "CENTER",
+        position.x or 0,
+        position.y or 0
+    )
+end
+
+function UI.Panel:SavePosition()
+    local point, _, relativePoint, x, y = self:GetPoint()
+    if not point then
+        return false
+    end
+
+    return Guardpoint.Config:SetPosition(
+        point,
+        relativePoint or point,
+        x or 0,
+        y or 0
+    )
+end
+
 function UI.Panel:Initialize()
     self:SetParent(UI.Root)
     self:SetWidth(320)
     self:SetHeight(80)
-    self:SetPoint("CENTER", UI.Root, "CENTER", 0, 0)
     self:SetFrameLevel(UI.Root:GetFrameLevel() + 1)
+    self:SetClampedToScreen(true)
+    self:EnableMouse(true)
+    self:SetMovable(true)
+    self:RegisterForDrag("LeftButton")
     UI.Styles:ApplyFrame(self)
+    self:ApplyPosition()
     self:Hide()
 end
 
@@ -28,11 +64,24 @@ function UI.Panel:IsPanelShown()
 end
 
 function UI.Panel:Reset()
-    self:ClearAllPoints()
-    self:SetPoint("CENTER", UI.Root, "CENTER", 0, 0)
+    Guardpoint.Config:SetPosition("CENTER", "CENTER", 0, 0)
     self:SetWidth(320)
     self:SetHeight(80)
+    self:ApplyPosition()
     self:Hide()
 end
+
+UI.Panel:SetScript("OnMouseDown", function(self, button)
+    if button == "LeftButton" and not Guardpoint.Config:Get("locked") then
+        self:StartMoving()
+    end
+end)
+
+UI.Panel:SetScript("OnMouseUp", function(self, button)
+    if button == "LeftButton" then
+        self:StopMovingOrSizing()
+        self:SavePosition()
+    end
+end)
 
 UI.Panel:Initialize()
