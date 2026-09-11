@@ -55,7 +55,3 @@ UI/Styles.lua
 
 Config/Defaults.lua
 Config/Settings.lua
-
-Media/README.md
-Tests/README.md
-Docs/Architecture.md
