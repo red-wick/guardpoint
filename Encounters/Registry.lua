@@ -16,6 +16,6 @@ function Registry:Get(instanceID)
 end
 
 function Registry:GetCurrent()
-    local instanceID = select(8, GetInstanceInfo())
+    local instanceID = GetCurrentMapAreaID()
     return self:Get(instanceID)
 end
