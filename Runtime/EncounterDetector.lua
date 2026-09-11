@@ -11,7 +11,13 @@ local function GetNPCID(guid)
         return nil
     end
 
-    return tonumber(string.match(guid, "^.-%-(%d+)%-%x+$"))
+    -- WoW 3.3.5 creature GUID: 0xF130 + entry ID + spawn ID.
+    local entryHex = string.match(guid, "^0xF130(%x%x%x%x)")
+    if not entryHex then
+        return nil
+    end
+
+    return tonumber(entryHex, 16)
 end
 
 local function RegisterEncounter(encounter)
