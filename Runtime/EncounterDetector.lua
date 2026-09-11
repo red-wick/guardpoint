@@ -11,8 +11,10 @@ local function GetNPCID(guid)
         return nil
     end
 
-    -- WoW 3.3.5 creature GUID: 0xF130 + entry ID + spawn ID.
-    local entryHex = string.match(guid, "^0xF130(%x%x%x%x)")
+    -- This 3.3.5 server uses GUIDs like 0xF130008F04000064.
+    -- The creature entry is the 16-bit value after the first 16 bits
+    -- of the GUID's creature-specific payload: 8F04 = 36612.
+    local entryHex = string.match(guid, "^0xF130%x%x(%x%x%x%x)")
     if not entryHex then
         return nil
     end
