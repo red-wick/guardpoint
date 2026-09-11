@@ -25,6 +25,10 @@ function Config:Initialize()
     self.values = GuardpointDB
 end
 
+function Config:IsInitialized()
+    return self.values ~= nil
+end
+
 function Config:Get(key)
     if not self.values then
         return nil
