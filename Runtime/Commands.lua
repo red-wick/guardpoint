@@ -6,11 +6,14 @@ SlashCmdList.GUARDPOINT = function(message)
 
     if command == "debug" then
         local state = Guardpoint.State
+        local instance = state:GetInstance()
+        local encounter = state:GetEncounter()
+
         Guardpoint:Print("version " .. Guardpoint.VERSION)
-        Guardpoint:Print("class: " .. tostring(state.playerClass))
-        Guardpoint:Print("combat: " .. tostring(state.inCombat))
-        Guardpoint:Print("instance: " .. tostring(state.instance and state.instance.name))
-        Guardpoint:Print("encounter: " .. tostring(state.encounter and state.encounter.name))
+        Guardpoint:Print("class: " .. tostring(state:GetPlayerClass()))
+        Guardpoint:Print("combat: " .. tostring(state:IsInCombat()))
+        Guardpoint:Print("instance: " .. tostring(instance and instance.name))
+        Guardpoint:Print("encounter: " .. tostring(encounter and encounter.name))
     elseif command == "show" then
         Guardpoint.UI.Panel:ShowPanel()
     elseif command == "hide" then
