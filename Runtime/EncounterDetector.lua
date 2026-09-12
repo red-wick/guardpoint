@@ -144,7 +144,9 @@ function Detector:HandleCombatLog(...)
 end
 
 Guardpoint.EventBus:Register("COMBAT_END", function()
-    Detector:Clear()
+    if active then
+        Detector:Clear()
+    end
 end)
 
 Detector:Refresh()
