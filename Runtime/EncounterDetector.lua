@@ -103,32 +103,23 @@ end
 
 function Detector:HandleCombatLog(...)
     local args = {...}
-    local event
-    local npcID
+    local event = args[2]
+    local sourceGUID = args[3]
+    local destGUID = args[7]
+    local sourceNPCID = GetNPCID(sourceGUID)
+    local destNPCID = GetNPCID(destGUID)
     local encounter
 
-    for i = 1, table.getn(args) do
-        local value = args[i]
+    if destNPCID then
+        encounter = npcIndex[destNPCID]
+    end
 
-        if type(value) == "string" then
-            if not event and string.match(value, "^[A-Z_]+$") then
-                event = value
-            end
-
-            local id = GetNPCID(value)
-            if id then
-                local candidate = npcIndex[id]
-                if candidate then
-                    npcID = id
-                    encounter = candidate
-                    break
-                end
-            end
-        end
+    if not encounter and sourceNPCID then
+        encounter = npcIndex[sourceNPCID]
     end
 
     if event == "UNIT_DIED" or event == "PARTY_KILL" then
-        if active and IsActiveNPCID(active, npcID) then
+        if active and IsActiveNPCID(active, destNPCID) then
             Guardpoint.State:CompleteEncounter()
             local completed = active
             active = nil
