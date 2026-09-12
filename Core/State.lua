@@ -116,6 +116,16 @@ function Guardpoint.State:SetEncounter(encounter)
     self.encounterEndReason = nil
 end
 
+function Guardpoint.State:EndEncounter(reason)
+    if not self.encounter or self.encounterEndedAt then
+        return
+    end
+
+    self.encounterEndedAt = GetTime()
+    self.encounterCompleted = reason == "KILL"
+    self.encounterEndReason = reason
+end
+
 function Guardpoint.State:SetEncounterEndReason(reason)
     self.encounterEndReason = reason
 end
@@ -129,10 +139,5 @@ function Guardpoint.State:ClearEncounter()
 end
 
 function Guardpoint.State:CompleteEncounter()
-    if not self.encounter or self.encounterCompleted then
-        return
-    end
-
-    self.encounterEndedAt = GetTime()
-    self.encounterCompleted = true
+    self:EndEncounter("KILL")
 end
