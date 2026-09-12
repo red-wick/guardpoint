@@ -15,5 +15,7 @@ end)
 Guardpoint.EventBus:Register("ENCOUNTER_END", function(_, reason)
     CancelEncounterTasks()
 
-    Guardpoint.State:SetEncounterEndReason(reason)
+    if Guardpoint.State:GetEncounter() then
+        Guardpoint.State:SetEncounterEndReason(reason)
+    end
 end)
