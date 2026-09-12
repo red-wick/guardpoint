@@ -8,6 +8,7 @@ Guardpoint.State = Guardpoint.State or {
     difficultyID = nil,
     maxPlayers = nil,
     encounter = nil,
+    encounterActive = false,
     encounterStartedAt = nil,
     encounterEndedAt = nil,
     encounterCompleted = false,
@@ -40,6 +41,7 @@ function Guardpoint.State:RefreshInstance()
     self.maxPlayers = maxPlayers
 
     self.encounter = nil
+    self.encounterActive = false
     self.encounterStartedAt = nil
     self.encounterEndedAt = nil
     self.encounterCompleted = false
@@ -92,6 +94,10 @@ function Guardpoint.State:GetEncounter()
     return self.encounter
 end
 
+function Guardpoint.State:IsEncounterActive()
+    return self.encounterActive
+end
+
 function Guardpoint.State:GetEncounterStartedAt()
     return self.encounterStartedAt
 end
@@ -110,6 +116,7 @@ end
 
 function Guardpoint.State:SetEncounter(encounter)
     self.encounter = encounter
+    self.encounterActive = encounter ~= nil
     self.encounterStartedAt = encounter and GetTime() or nil
     self.encounterEndedAt = nil
     self.encounterCompleted = false
@@ -121,6 +128,7 @@ function Guardpoint.State:EndEncounter(reason)
         return
     end
 
+    self.encounterActive = false
     self.encounterEndedAt = GetTime()
     self.encounterCompleted = reason == "KILL"
     self.encounterEndReason = reason
@@ -132,6 +140,7 @@ end
 
 function Guardpoint.State:ClearEncounter()
     self.encounter = nil
+    self.encounterActive = false
     self.encounterStartedAt = nil
     self.encounterEndedAt = nil
     self.encounterCompleted = false
