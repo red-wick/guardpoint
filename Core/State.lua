@@ -49,6 +49,7 @@ end
 function Guardpoint.State:Refresh()
     self:RefreshPlayer()
     self:RefreshInstance()
+    self:SetCombat(UnitAffectingCombat("player"))
 end
 
 function Guardpoint.State:SetCombat(active)
