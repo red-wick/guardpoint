@@ -134,10 +134,6 @@ function Guardpoint.State:EndEncounter(reason)
     self.encounterEndReason = reason
 end
 
-function Guardpoint.State:SetEncounterEndReason(reason)
-    self.encounterEndReason = reason
-end
-
 function Guardpoint.State:ClearEncounter()
     self.encounter = nil
     self.encounterActive = false
