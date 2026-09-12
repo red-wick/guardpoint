@@ -6,19 +6,6 @@ local active = nil
 
 Guardpoint.Runtime.EncounterDetector = Detector
 
-local function GetNPCID(guid)
-    if type(guid) ~= "string" then
-        return nil
-    end
-
-    local entryHex = string.match(guid, "^0xF130%x%x(%x%x%x%x)")
-    if not entryHex then
-        return nil
-    end
-
-    return tonumber(entryHex, 16)
-end
-
 local function RegisterEncounter(encounter)
     if type(encounter) ~= "table" then
         return
@@ -104,12 +91,12 @@ end
 function Detector:HandleCombatLog(...)
     local log = Guardpoint.Runtime.CombatLog:Parse(...)
     local event = log.event
-    local sourceNPCID = GetNPCID(log.sourceGUID)
-    local destNPCID = GetNPCID(log.destGUID)
+    local sourceNPCID = Guardpoint.Runtime.CombatLog:GetNPCID(log.sourceGUID)
+    local destNPCID = Guardpoint.Runtime.CombatLog:GetNPCID(log.destGUID)
     local npcID = destNPCID or sourceNPCID
     local encounter = npcIndex[npcID]
 
-    if event == "UNIT_DIED" or event == "PARTY_KILL" then
+    if Guardpoint.Runtime.CombatLog:IsDeathEvent(event) then
         if active and IsActiveNPCID(active, destNPCID) then
             Guardpoint.State:CompleteEncounter()
             local completed = active
