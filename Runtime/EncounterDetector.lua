@@ -6,6 +6,19 @@ local active = nil
 
 Guardpoint.Runtime.EncounterDetector = Detector
 
+local function GetNPCID(guid)
+    if type(guid) ~= "string" then
+        return nil
+    end
+
+    local entryHex = string.match(guid, "^0xF130%x%x(%x%x%x%x)")
+    if not entryHex then
+        return nil
+    end
+
+    return tonumber(entryHex, 16)
+end
+
 local function RegisterEncounter(encounter)
     if type(encounter) ~= "table" then
         return
@@ -88,19 +101,34 @@ function Detector:Reset()
     active = nil
 end
 
-function Detector:HandleCombatLog(log)
-    if type(log) ~= "table" then
-        return
+function Detector:HandleCombatLog(...)
+    local args = {...}
+    local event
+    local npcID
+    local encounter
+
+    for i = 1, table.getn(args) do
+        local value = args[i]
+
+        if type(value) == "string" then
+            if not event and string.match(value, "^[A-Z_]+$") then
+                event = value
+            end
+
+            local id = GetNPCID(value)
+            if id then
+                local candidate = npcIndex[id]
+                if candidate then
+                    npcID = id
+                    encounter = candidate
+                    break
+                end
+            end
+        end
     end
 
-    local event = log.event
-    local sourceNPCID = Guardpoint.Runtime.CombatLog:GetNPCID(log.sourceGUID)
-    local destNPCID = Guardpoint.Runtime.CombatLog:GetNPCID(log.destGUID)
-    local npcID = destNPCID or sourceNPCID
-    local encounter = npcIndex[npcID]
-
-    if Guardpoint.Runtime.CombatLog:IsDeathEvent(event) then
-        if active and IsActiveNPCID(active, destNPCID) then
+    if event == "UNIT_DIED" or event == "PARTY_KILL" then
+        if active and IsActiveNPCID(active, npcID) then
             Guardpoint.State:CompleteEncounter()
             local completed = active
             active = nil
@@ -124,10 +152,6 @@ function Detector:HandleCombatLog(log)
     end
 end
 
-Guardpoint.EventBus:Register("COMBAT_LOG", function(log)
-    Detector:HandleCombatLog(log)
-end)
-
 Guardpoint.EventBus:Register("COMBAT_END", function()
     Detector:Clear()
 end)
@@ -135,8 +159,14 @@ end)
 Detector:Refresh()
 
 local frame = CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event, ...)
-    Detector:End("LEAVE")
-    Detector:Refresh()
+    if event == "PLAYER_ENTERING_WORLD" then
+        Detector:End("LEAVE")
+        Detector:Refresh()
+        return
+    end
+
+    Detector:HandleCombatLog(...)
 end)
