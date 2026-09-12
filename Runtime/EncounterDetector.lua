@@ -102,33 +102,15 @@ function Detector:Reset()
 end
 
 function Detector:HandleCombatLog(...)
-    local args = {...}
-    local event
-    local npcID
-    local encounter
-
-    for i = 1, table.getn(args) do
-        local value = args[i]
-
-        if type(value) == "string" then
-            if not event and string.match(value, "^[A-Z_]+$") then
-                event = value
-            end
-
-            local id = GetNPCID(value)
-            if id then
-                local candidate = npcIndex[id]
-                if candidate then
-                    npcID = id
-                    encounter = candidate
-                    break
-                end
-            end
-        end
-    end
+    local log = Guardpoint.Runtime.CombatLog:Parse(...)
+    local event = log.event
+    local sourceNPCID = GetNPCID(log.sourceGUID)
+    local destNPCID = GetNPCID(log.destGUID)
+    local npcID = destNPCID or sourceNPCID
+    local encounter = npcIndex[npcID]
 
     if event == "UNIT_DIED" or event == "PARTY_KILL" then
-        if active and IsActiveNPCID(active, npcID) then
+        if active and IsActiveNPCID(active, destNPCID) then
             Guardpoint.State:CompleteEncounter()
             local completed = active
             active = nil
