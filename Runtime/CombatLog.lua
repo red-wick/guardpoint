@@ -38,3 +38,14 @@ end
 function CombatLog:IsDeathEvent(event)
     return event == "UNIT_DIED" or event == "PARTY_KILL"
 end
+
+function CombatLog:Dispatch(...)
+    local log = self:Parse(...)
+    Guardpoint.EventBus:Fire("COMBAT_LOG", log)
+end
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+frame:SetScript("OnEvent", function(self, event, ...)
+    CombatLog:Dispatch(...)
+end)
