@@ -3,25 +3,9 @@ Guardpoint.Runtime = Guardpoint.Runtime or {}
 local Detector = {}
 local npcIndex = {}
 local active = nil
+local pendingWipeTask = nil
 
 Guardpoint.Runtime.EncounterDetector = Detector
-
-local function GetNPCID(guid)
-    if type(guid) ~= "string" then
-        return nil
-    end
-
-    if string.sub(guid, 1, 6) ~= "0xF130" then
-        return nil
-    end
-
-    local entryHex = string.sub(guid, 7, 10)
-    if string.len(entryHex) ~= 4 or not string.match(entryHex, "^%x%x%x%x$") then
-        return nil
-    end
-
-    return tonumber(entryHex, 16)
-end
 
 local function RegisterEncounter(encounter)
     if type(encounter) ~= "table" then
@@ -71,6 +55,13 @@ local function IsActiveNPCID(encounter, npcID)
     return false
 end
 
+local function CancelPendingWipe()
+    if pendingWipeTask then
+        Guardpoint.Scheduler:Cancel(pendingWipeTask)
+        pendingWipeTask = nil
+    end
+end
+
 function Detector:Refresh()
     npcIndex = {}
 
@@ -83,6 +74,8 @@ function Detector:GetActive()
 end
 
 function Detector:End(reason)
+    CancelPendingWipe()
+
     local previous = active
     active = nil
 
@@ -102,6 +95,7 @@ function Detector:Clear()
 end
 
 function Detector:Reset()
+    CancelPendingWipe()
     active = nil
 end
 
@@ -125,6 +119,7 @@ function Detector:HandleCombatLog(log)
 
     if Guardpoint.Runtime.CombatLog:IsDeathEvent(event) then
         if active and IsActiveNPCID(active, destNPCID) then
+            CancelPendingWipe()
             Guardpoint.State:CompleteEncounter()
             local completed = active
             active = nil
@@ -138,6 +133,8 @@ function Detector:HandleCombatLog(log)
     end
 
     if active ~= encounter then
+        CancelPendingWipe()
+
         if active then
             self:End("SWITCH")
         end
@@ -153,9 +150,17 @@ Guardpoint.EventBus:Register("COMBAT_LOG", function(log)
 end)
 
 Guardpoint.EventBus:Register("COMBAT_END", function()
-    if active then
-        Detector:Clear()
+    if not active or pendingWipeTask then
+        return
     end
+
+    pendingWipeTask = Guardpoint.Scheduler:Schedule(1, function()
+        pendingWipeTask = nil
+
+        if active and not Guardpoint.State:IsEncounterCompleted() then
+            Detector:Clear()
+        end
+    end, "encounter")
 end)
 
 Detector:Refresh()
