@@ -48,6 +48,7 @@ SlashCmdList.GUARDPOINT = function(message)
         Guardpoint.State:SetCombat(false)
         Guardpoint.State:ClearEncounter()
         Guardpoint.State:RefreshInstance()
+        Guardpoint.Runtime.EncounterDetector:Reset()
         Guardpoint.UI.Panel:Reset()
         Guardpoint:Print("state and panel reset")
     else
