@@ -88,8 +88,11 @@ function Detector:Reset()
     active = nil
 end
 
-function Detector:HandleCombatLog(...)
-    local log = Guardpoint.Runtime.CombatLog:Parse(...)
+function Detector:HandleCombatLog(log)
+    if type(log) ~= "table" then
+        return
+    end
+
     local event = log.event
     local sourceNPCID = Guardpoint.Runtime.CombatLog:GetNPCID(log.sourceGUID)
     local destNPCID = Guardpoint.Runtime.CombatLog:GetNPCID(log.destGUID)
@@ -121,6 +124,10 @@ function Detector:HandleCombatLog(...)
     end
 end
 
+Guardpoint.EventBus:Register("COMBAT_LOG", function(log)
+    Detector:HandleCombatLog(log)
+end)
+
 Guardpoint.EventBus:Register("COMBAT_END", function()
     Detector:Clear()
 end)
@@ -128,14 +135,8 @@ end)
 Detector:Refresh()
 
 local frame = CreateFrame("Frame")
-frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event, ...)
-    if event == "PLAYER_ENTERING_WORLD" then
-        Detector:End("LEAVE")
-        Detector:Refresh()
-        return
-    end
-
-    Detector:HandleCombatLog(...)
+    Detector:End("LEAVE")
+    Detector:Refresh()
 end)
