@@ -97,6 +97,11 @@ function Detector:Clear()
     self:End("WIPE")
 end
 
+function Detector:Reset()
+    active = nil
+    npcIndex = {}
+end
+
 function Detector:HandleCombatLog(...)
     local args = {...}
     local event
