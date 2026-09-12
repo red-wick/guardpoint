@@ -21,3 +21,20 @@ function CombatLog:Parse(...)
         args = args,
     }
 end
+
+function CombatLog:GetNPCID(guid)
+    if type(guid) ~= "string" then
+        return nil
+    end
+
+    local entryHex = string.match(guid, "^0xF130%x%x(%x%x%x%x)")
+    if not entryHex then
+        return nil
+    end
+
+    return tonumber(entryHex, 16)
+end
+
+function CombatLog:IsDeathEvent(event)
+    return event == "UNIT_DIED" or event == "PARTY_KILL"
+end
