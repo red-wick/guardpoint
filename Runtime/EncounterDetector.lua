@@ -105,13 +105,14 @@ function Detector:Reset()
     active = nil
 end
 
-function Detector:HandleCombatLog(...)
-    local args = {...}
-    local event = args[2]
-    local sourceGUID = args[3]
-    local destGUID = args[7]
-    local sourceNPCID = GetNPCID(sourceGUID)
-    local destNPCID = GetNPCID(destGUID)
+function Detector:HandleCombatLog(log)
+    if type(log) ~= "table" then
+        return
+    end
+
+    local event = log.event
+    local sourceNPCID = Guardpoint.Runtime.CombatLog:GetNPCID(log.sourceGUID)
+    local destNPCID = Guardpoint.Runtime.CombatLog:GetNPCID(log.destGUID)
     local encounter
 
     if destNPCID then
@@ -122,7 +123,7 @@ function Detector:HandleCombatLog(...)
         encounter = npcIndex[sourceNPCID]
     end
 
-    if event == "UNIT_DIED" or event == "PARTY_KILL" then
+    if Guardpoint.Runtime.CombatLog:IsDeathEvent(event) then
         if active and IsActiveNPCID(active, destNPCID) then
             Guardpoint.State:CompleteEncounter()
             local completed = active
@@ -147,6 +148,10 @@ function Detector:HandleCombatLog(...)
     end
 end
 
+Guardpoint.EventBus:Register("COMBAT_LOG", function(log)
+    Detector:HandleCombatLog(log)
+end)
+
 Guardpoint.EventBus:Register("COMBAT_END", function()
     if active then
         Detector:Clear()
@@ -156,14 +161,8 @@ end)
 Detector:Refresh()
 
 local frame = CreateFrame("Frame")
-frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event, ...)
-    if event == "PLAYER_ENTERING_WORLD" then
-        Detector:End("LEAVE")
-        Detector:Refresh()
-        return
-    end
-
-    Detector:HandleCombatLog(...)
+    Detector:End("LEAVE")
+    Detector:Refresh()
 end)
