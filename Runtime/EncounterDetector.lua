@@ -82,8 +82,10 @@ function Detector:End(reason)
     local previous = active
     active = nil
 
-    if previous or reason == "LEAVE" then
+    if reason == "LEAVE" then
         Guardpoint.State:ClearEncounter()
+    elseif previous then
+        Guardpoint.State:EndEncounter(reason)
     end
 
     if previous then
