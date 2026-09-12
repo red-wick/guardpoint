@@ -14,6 +14,10 @@ SlashCmdList.GUARDPOINT = function(message)
         Guardpoint:Print("combat: " .. tostring(state:IsInCombat()))
         Guardpoint:Print("instance: " .. tostring(instance and instance.name))
         Guardpoint:Print("encounter: " .. tostring(encounter and encounter.name))
+        Guardpoint:Print("encounter completed: " .. tostring(state:IsEncounterCompleted()))
+        Guardpoint:Print("encounter end reason: " .. tostring(state:GetEncounterEndReason()))
+        Guardpoint:Print("encounter started at: " .. tostring(state:GetEncounterStartedAt()))
+        Guardpoint:Print("encounter ended at: " .. tostring(state:GetEncounterEndedAt()))
     elseif command == "show" then
         Guardpoint.UI.Panel:ShowPanel()
     elseif command == "hide" then
