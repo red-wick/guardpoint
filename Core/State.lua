@@ -28,8 +28,9 @@ function Guardpoint.State:RefreshInstance()
     self.maxPlayers = nil
 
     if Guardpoint.Encounters and Guardpoint.Encounters.Registry then
-        self.mapID = GetCurrentMapAreaID()
-        self.instance = Guardpoint.Encounters.Registry:GetCurrent()
+        local registry = Guardpoint.Encounters.Registry
+        self.mapID = registry:GetCurrentMapID()
+        self.instance = registry:GetCurrent()
     end
 
     local name, instanceType, difficultyID, _, maxPlayers = GetInstanceInfo()
