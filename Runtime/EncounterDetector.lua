@@ -11,8 +11,12 @@ local function GetNPCID(guid)
         return nil
     end
 
-    local entryHex = string.match(guid, "^0xF130%x%x(%x%x%x%x)")
-    if not entryHex then
+    if string.sub(guid, 1, 6) ~= "0xF130" then
+        return nil
+    end
+
+    local entryHex = string.sub(guid, 7, 10)
+    if string.len(entryHex) ~= 4 or not string.match(entryHex, "^%x%x%x%x$") then
         return nil
     end
 
