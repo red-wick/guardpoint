@@ -27,7 +27,7 @@ function CombatLog:GetNPCID(guid)
         return nil
     end
 
-    local entryHex = string.match(guid, "^0xF130%x%x(%x%x%x%x)")
+    local entryHex = string.match(guid, "^0xF130(%x%x%x%x%x%x)")
     if not entryHex then
         return nil
     end
