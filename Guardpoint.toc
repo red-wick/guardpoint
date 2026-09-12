@@ -53,7 +53,6 @@ UI\Panel.lua
 
 Runtime\Bootstrap.lua
 Runtime\Events.lua
-Runtime\CombatLog.lua
 Runtime\EncounterDetector.lua
 Runtime\EncounterLifecycle.lua
 Runtime\Commands.lua
