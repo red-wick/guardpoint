@@ -99,7 +99,6 @@ end
 
 function Detector:Reset()
     active = nil
-    npcIndex = {}
 end
 
 function Detector:HandleCombatLog(...)
