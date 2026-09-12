@@ -32,3 +32,7 @@ end
 function Registry:GetCurrentMapID()
     return GetCurrentMapAreaID()
 end
+
+function Registry:IsCurrentSupported()
+    return self:GetCurrent() ~= nil
+end
