@@ -9,7 +9,7 @@ SlashCmdList.GUARDPOINT = function(message)
         local instance = state:GetInstance()
         local encounter = state:GetEncounter()
 
-        Guardpoint:Print("version " .. Guardpoint.VERSION)
+        Guardpoint:Print("version " .. Guardpoint.Constants.VERSION)
         Guardpoint:Print("class: " .. tostring(state:GetPlayerClass()))
         Guardpoint:Print("combat: " .. tostring(state:IsInCombat()))
         Guardpoint:Print("instance: " .. tostring(instance and instance.name))
@@ -52,6 +52,6 @@ SlashCmdList.GUARDPOINT = function(message)
         Guardpoint.UI.Panel:Reset()
         Guardpoint:Print("state and panel reset")
     else
-        Guardpoint:Print("v" .. Guardpoint.VERSION .. " | /gp show | /gp hide | /gp scale | /gp lock | /gp unlock | /gp debug | /gp reset")
+        Guardpoint:Print("v" .. Guardpoint.Constants.VERSION .. " | /gp show | /gp hide | /gp scale | /gp lock | /gp unlock | /gp debug | /gp reset")
     end
 end
